@@ -1,0 +1,4 @@
+this program is made for the ELFE project (Experimentons Localement la Flexibilite Energetique).
+The aim of the project is to maximize the efficiency of the local renewable energy by using it when availible, introducing "flexibility factors" by driving part of the consumption of volunteer citizens and professionals. It is based on the assumption that certain things can be delayed such as dishwashers, hot water tanks, freezers, ... without having a negative impact on the volunteer's life.
+This is currently a program to evaluate the impact of some factors such as flexibility, storage, ... on electricity import/export.
+https://www.projet-elfe.fr/
