@@ -14,7 +14,11 @@ class PowerData():
 				return False
 		return True
 
-	def __add__(self, p2 : PowerData) -> PowerData:
+	def __add__(self, p2 : Union[PowerData, float, int]) -> PowerData:
+		if (isinstance(p2, float)):
+			return PowerData(self.dates[:], p2 + self.power)
+		if (isinstance(p2, int)):
+			return PowerData(self.dates[:], p2 + self.power)
 		if not self.check_simalarity(p2):
 			raise("data should be similar to be added")#expect data to have the same dateTime
 		return PowerData(self.dates[:], p2.power + self.power)
@@ -61,6 +65,23 @@ class PowerData():
 				i += 1
 			power.append(self.power[i])
 		return PowerData(dates, np.array(power))
+	
+	def get_slice_over_period(self, beginning: datetime = None, end : datetime = None) -> PowerData:
+		if (beginning == None):
+			beginning = self.dates[0]
+		if (end == None):
+			end = self.dates[-1]
+		i = 0
+		while(i < len(self.dates) and self.dates[i] < beginning):
+			i += 1
+		j = i
+		powerToReturn : List[float] = []
+		dateToReturn : List[datetime] = []
+		while(j < len(self.dates) and self.dates[j] < end):
+			powerToReturn.append(self.power[j])
+			dateToReturn.append(self.dates[j])
+			j += 1
+		return PowerData(dateToReturn, np.array(powerToReturn))
 
 	def get_intersect(self, p2 : PowerData) -> List[datetime]:
 		#this function assumes the date arrays are sorted to speed up the process
@@ -120,3 +141,8 @@ class PowerData():
 			summ += self.power[j]
 			j += 1
 		return summ / (j - i)
+	def get_merged_to(self, p2 : PowerData) -> PowerData:
+		if (self.dates[0] < p2.dates[0]):
+			return PowerData(self.dates + p2.dates,np.concatenate(self.power, p2.power))
+		else:
+			return PowerData(p2.dates + self.dates, np.concatenate(p2.power, self.power))
