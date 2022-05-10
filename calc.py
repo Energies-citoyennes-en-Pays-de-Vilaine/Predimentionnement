@@ -106,3 +106,17 @@ class PowerData():
 		return PowerData(self.dates, np.array(toReturn))
 	def get_copy(self) -> PowerData:
 		return PowerData(self.date, np.copy(self.power))
+	def get_average(self, beginning : datetime = None, end : datetime = None) -> float:
+		if (beginning == None):
+			beginning = self.dates[0]
+		if (end == None):
+			end = self.dates[-1]
+		i = 0
+		while(i < len(self.dates) and self.dates[i] < beginning):
+			i += 1
+		j = i
+		summ = 0.0
+		while(j < len(self.dates) and self.dates[j] < end):
+			summ += self.power[j]
+			j += 1
+		return summ / (j - i)

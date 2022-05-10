@@ -10,7 +10,12 @@ This program use as it base an agglomerated open-data to make an average consump
 # energy producer
 
 The energy producer is (at the moment) a citizen-owned wind farm composed of projects begawatts (Béganne), Isac-Watts (Sévérac-Guenrouët) and Tesdan le vent (Avessac)
-Other sources will be incorporated as the project goes.
+Other sources may be incorporated as the project goes.
+
+# convention
+for the moment
+all electric power will be expressed in Watt/200 users
+all energy will be expressed in Watt.h/200 users
 
 # project website:
 https://www.projet-elfe.fr/
