@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import *
 from datetime import datetime
+from math import floor
 import numpy as np
-
 class PowerData():
 	power : np.array
 	dates : List[datetime]
@@ -31,7 +31,21 @@ class PowerData():
 			return PowerData(self.dates, self.power * toMul.power)
 		if len(self.power) == len(toMul):
 			return PowerData(self.dates, self.power * np.array(toMul))
-	
+
+	def __truediv__(self, toDivBy : Union[np.array, List[float], float, PowerData]) -> PowerData:
+		if (isinstance(toDivBy, float)):
+			return PowerData(self.dates, self.power / toDivBy)
+		if (isinstance(toDivBy, PowerData)):
+			power = []
+			for i in range(len(self.power)):
+				if toDivBy.power[i] == 0:
+					power.append(0)
+				else:
+					power.append(self.power[i]/toDivBy.power[i])
+			return PowerData(self.dates, np.array(power))
+		if len(self.power) == len(toDivBy):
+			return PowerData(self.dates, self.power / np.array(toDivBy))
+
 	def __init__(self, dates: List[datetime], power : np.array):
 		if (len(power) != len(dates)):
 			raise("power and dates should have the same length")
@@ -63,3 +77,32 @@ class PowerData():
 			else:
 				j += 1
 		return toReturn
+	def get_rolling_average(self, count) -> PowerData:
+		current_sum = 0
+		powerToReturn = []
+		for i in range(floor(count/2)):
+			current_sum += self.power[i]
+		for i in range(len(self.power)):
+			powerToReturn.append(current_sum / count)
+			if (i + floor(count/2) < len(self.power)):
+				current_sum += self.power[i + floor(count/2)]
+			if (i - floor(count/2) > 0):
+				current_sum -= self.power[i - floor(count/2)]
+		return PowerData(self.dates, np.array(powerToReturn))
+	def get_cumulated_average(self) -> PowerData:
+		data = 0
+		power = []
+		for i in range(len(self.power)):
+			data += self.power[i]
+			power.append(data/(i+1))
+		return PowerData(self.dates, np.array(power))
+	def get_bigger_than(self, power : Union[int,float]) -> PowerData:
+		toReturn = []
+		for i in range(len(self.power)):
+			if (self.power[i] <= power):
+				toReturn.append(power)
+			else:
+				toReturn.append(self.power[i])
+		return PowerData(self.dates, np.array(toReturn))
+	def get_copy(self) -> PowerData:
+		return PowerData(self.date, np.copy(self.power))
