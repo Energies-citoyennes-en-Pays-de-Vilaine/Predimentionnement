@@ -16,6 +16,7 @@ Other sources may be incorporated as the project goes.
 for the moment
 all electric power will be expressed in Watt/200 users
 all energy will be expressed in Watt.h/200 users
+timestamps in files will be parsed to become dd/mm/yyyy:hh
 
 # project website:
 https://www.projet-elfe.fr/

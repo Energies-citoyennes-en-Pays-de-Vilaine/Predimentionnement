@@ -11,6 +11,8 @@ print("loading prod data")
 prod = dl.load_prod("../data/Prod Eol Elfe.csv")
 print("loading solar prod data")
 solarProd = dl.load_solar_panel_prod("../data/production_bretagne/Solaire.csv")
+print("loading bioenergy prod data")
+bioenergy_prod = dl.load_solar_panel_prod("../data/production_bretagne/Bioenergie.csv")
 print("getting intersection")
 intersec = user.get_intersect(prod)
 print("getting prod slice")
@@ -26,6 +28,13 @@ solarProd = solarProd.get_scaled([conf.SOLAR_SCALING_FACTOR]*2, [
 	])
 if (conf.ADD_SOLAR):
 	prod_scaled += solarProd.get_slice(intersec)
+bioenergy_prod = bioenergy_prod.get_scaled([conf.BIOENERGY_SCALING_FACTOR]*2, [
+	Period("01/01/2020:00", "01/01/2021:00"),
+	Period("01/01/2021:00", "01/01/2022:00")
+	])
+if (conf.ADD_BIOENERGY):
+	prod_scaled += bioenergy_prod.get_slice(intersec)
+
 print("calculating rolling average")
 prod_avg = prod_scaled.get_rolling_average(24)
 user_avg = user.get_rolling_average(24)
@@ -50,7 +59,5 @@ e_i = energy_import.get_slice_over_period(beginning=datetime.strptime("01/01/202
 e_e = energy_export.get_slice_over_period(beginning=datetime.strptime("01/01/2021", "%d/%m/%Y")) 
 subplot.plot(e_i.dates, e_i.power)
 subplot.plot(e_e.dates, e_e.power)
-plt.figure("solar prod")
-plt.plot(solarProd.dates, solarProd.get_rolling_average(24).power)
 plt.show()
 

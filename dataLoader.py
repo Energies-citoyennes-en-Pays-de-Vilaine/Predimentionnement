@@ -50,7 +50,7 @@ class dataloader():
 			power = []
 			for line in inp:
 				splittedLine = line.split(';')
-				date = datetime.strptime(splittedLine[0], "%Y-%m-%dT%H")
+				date = datetime.strptime(splittedLine[0], "%Y-%m-%d:%H")
 				if (startDate != None and date < startDate):
 					continue
 				dates.append(date)

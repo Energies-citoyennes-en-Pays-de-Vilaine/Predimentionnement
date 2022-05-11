@@ -4,7 +4,7 @@ def prod_bretagne(inpath, outpath):
 	DATE_POS = 0
 	TYPE_PROD_POS = 4
 	ENERGY_POS = 6
-	toTreat = {"F5" : "Solaire"}
+	toTreat = {"F5" : "Solaire", "F2": "Bioenergie"}
 	dates = {}
 	prods = {}
 	for key in toTreat.keys():
@@ -43,4 +43,4 @@ def prod_bretagne(inpath, outpath):
 				hourlyProds.append(prods[key][i])
 		with open(outpath + f"{toTreat[key]}.csv", "w") as outp:
 			for i in range(len(hourlyDates)):
-				print(hourlyDates[i].strftime("%Y-%m-%dT%H"), hourlyProds[i], sep=";", file=outp)
+				print(hourlyDates[i].strftime("%Y-%m-%d:%H"), hourlyProds[i], sep=";", file=outp)
