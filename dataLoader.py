@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import *
 from datetime import datetime, timedelta
 import numpy as np
-from calc import PowerData
+from calc import PowerData, Period
 
 class dataloader():
 	def load_prod(self, path : str, startDate : Optional[datetime] = None) -> PowerData:
@@ -38,6 +38,19 @@ class dataloader():
 				
 				date = datetime.strptime(splittedLine[0][:16], "%Y-%m-%dT%H:%M")
 				date -= timedelta(hours = int(splittedLine[0].split("+")[1][:2]))
+				if (startDate != None and date < startDate):
+					continue
+				dates.append(date)
+				power.append(float(splittedLine[1]))
+		return PowerData(dates, np.array(power))
+	def load_solar_panel_prod(self, path : str, startDate : Optional[datetime] = None) -> PowerData:
+		#expecting a csv mm/dd/yyyy hh:mm:ss,"12,34"
+		with open(path) as inp:
+			dates = []
+			power = []
+			for line in inp:
+				splittedLine = line.split(';')
+				date = datetime.strptime(splittedLine[0], "%Y-%m-%dT%H")
 				if (startDate != None and date < startDate):
 					continue
 				dates.append(date)

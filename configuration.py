@@ -1,4 +1,9 @@
+from calc import Period
+from datetime import datetime
 NB_EOLIENNE = 13
 CA_REDON_POPULATION = 29_521
 CA_PONTCHATEAU_POPULATION = 14_399
 NB_PARTICULIERS = 200
+SOLAR_SCALING_FACTOR = (28000+2169) # production in Redon and Pontchateau over the course of the 2020 year
+SOLAR_SCALING_FACTOR *= 1e6 * NB_PARTICULIERS / (365*24) / (CA_PONTCHATEAU_POPULATION + CA_REDON_POPULATION)
+ADD_SOLAR = True

@@ -3,6 +3,18 @@ from typing import *
 from datetime import datetime
 from math import floor
 import numpy as np
+
+class Period:
+	beginning : datetime
+	end : datetime
+	def __init__(self, beginning : Union[datetime, str], end : Union[datetime, str]):
+		if (isinstance(beginning, str)):
+			beginning = datetime.strptime(beginning, "%d/%m/%Y:%H")
+		if (isinstance(end, str)):
+			end = datetime.strptime(end, "%d/%m/%Y:%H")
+		self.beginning = beginning
+		self.end = end
+
 class PowerData():
 	power : np.array
 	dates : List[datetime]
@@ -126,7 +138,7 @@ class PowerData():
 				toReturn.append(self.power[i])
 		return PowerData(self.dates, np.array(toReturn))
 	def get_copy(self) -> PowerData:
-		return PowerData(self.date, np.copy(self.power))
+		return PowerData(self.dates, np.copy(self.power))
 	def get_average(self, beginning : datetime = None, end : datetime = None) -> float:
 		if (beginning == None):
 			beginning = self.dates[0]
@@ -142,7 +154,20 @@ class PowerData():
 			j += 1
 		return summ / (j - i)
 	def get_merged_to(self, p2 : PowerData) -> PowerData:
+		if (len(self.dates) == 0):
+			return p2.get_copy()
 		if (self.dates[0] < p2.dates[0]):
-			return PowerData(self.dates + p2.dates,np.concatenate(self.power, p2.power))
+			return PowerData(self.dates + p2.dates,np.concatenate((self.power, p2.power)))
 		else:
 			return PowerData(p2.dates + self.dates, np.concatenate(p2.power, self.power))
+	def get_scaled(self, power : Union[List[float], float], periods : List[Period] = None) -> PowerData:
+		if (isinstance(power, float) or isinstance(power, int)):
+			return self/self.get_average() * power
+
+		toReturn = PowerData([], np.array([]))
+		for i in range(len(power)):
+			newPowerData = self.get_slice_over_period(periods[i].beginning, periods[i].end)
+			newPowerData = newPowerData / newPowerData.get_average()
+			newPowerData = newPowerData * power[i]
+			toReturn = toReturn.get_merged_to(newPowerData)
+		return toReturn
