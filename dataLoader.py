@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import *
 from datetime import datetime, timedelta
 import numpy as np
-from calc import PowerData, Period
+from .calc import PowerData, Period
 
 class dataloader():
 	def load_prod(self, path : str, startDate : Optional[datetime] = None) -> PowerData:
