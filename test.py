@@ -22,13 +22,13 @@ user = user.get_slice(intersec) * float(conf.NB_PARTICULIERS)
 print("prod set to scale")
 prod_scaled = prod * 1000.0  * float(conf.NB_PARTICULIERS * (conf.NB_EOLIENNE)/ (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION))
 print("setting solar prod to scale and adding it to prod")
-solarProd = solarProd.get_scaled([conf.SOLAR_SCALING_FACTOR]*2, [
+solarProd = solarProd.get_scaled([conf.SOLAR_TOTAL_PROD * conf.NB_PARTICULIERS * conf.PRODUCTION_SCALING_FACTOR]*2, [
 	Period("01/01/2020:00", "01/01/2021:00"),
 	Period("01/01/2021:00", "01/01/2022:00")
 	])
 if (conf.ADD_SOLAR):
 	prod_scaled += solarProd.get_slice(intersec)
-bioenergy_prod = bioenergy_prod.get_scaled([conf.BIOENERGY_SCALING_FACTOR]*2, [
+bioenergy_prod = bioenergy_prod.get_scaled([conf.BIOENERGY_TOTAL_PROD * conf.NB_PARTICULIERS * conf.PRODUCTION_SCALING_FACTOR]*2, [
 	Period("01/01/2020:00", "01/01/2021:00"),
 	Period("01/01/2021:00", "01/01/2022:00")
 	])
