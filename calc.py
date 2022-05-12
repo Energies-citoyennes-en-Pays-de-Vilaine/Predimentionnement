@@ -40,8 +40,10 @@ class PowerData():
 			raise("data should be similar to be added")#expect data to have the same dateTime
 		return PowerData(self.dates[:], p2.power - self.power)
 
-	def __mul__(self, toMul : Union[np.array, List[float], float, PowerData]) -> PowerData:
+	def __mul__(self, toMul : Union[np.array, List[float], float, PowerData, int]) -> PowerData:
 		if (isinstance(toMul, float)):
+			return PowerData(self.dates, self.power * toMul)
+		if (isinstance(toMul, int)):
 			return PowerData(self.dates, self.power * toMul)
 		if (isinstance(toMul, PowerData)):
 			return PowerData(self.dates, self.power * toMul.power)
