@@ -38,7 +38,7 @@ class PowerData():
 	def __sub__(self, p2 : PowerData) -> PowerData:
 		if not self.check_simalarity(p2):
 			raise("data should be similar to be added")#expect data to have the same dateTime
-		return PowerData(self.dates[:], p2.power - self.power)
+		return PowerData(self.dates[:], self.power - p2.power)
 
 	def __mul__(self, toMul : Union[np.array, List[float], float, PowerData, int]) -> PowerData:
 		if (isinstance(toMul, float)):
