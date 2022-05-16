@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import floor
 import numpy as np
 
@@ -173,3 +173,19 @@ class PowerData():
 			newPowerData = newPowerData * power[i]
 			toReturn = toReturn.get_merged_to(newPowerData)
 		return toReturn
+
+class Battery(PowerData):
+	capacity : float
+	def __init__(self, capacity : float, dates: List[datetime] = None, power: np.array = None):
+		if dates is None or power is None:
+			dates = []
+			power = np.array()
+		super().__init__(dates, power)
+		self.capacity = capacity #capacity is in wh
+		self.energy = 0
+	def add_point(self, date: datetime, power : float):
+		if (len(self.dates) != 0):
+			self.energy += min(max(power * ((date - self.dates[-1]).seconds/3600) + self.energy, 0), self.capacity)
+		self.power.append(self.energy)
+		self.dates.append(date)
+			
