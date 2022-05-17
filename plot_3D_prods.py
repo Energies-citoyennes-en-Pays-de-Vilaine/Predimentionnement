@@ -9,11 +9,11 @@ SIM_SOLAR_WIND   = False
 SIM_WIND_STORAGE = True
 
 dl = dataloader()
-SIZE_SIM_X = 10
-SIZE_SIM_Y = 80
+SIZE_SIM_X = 7
+SIZE_SIM_Y = 40
 SOLAR_PROD_STEP = 0.75#power in MW
 WIND_PROD_STEP  = 2.5#power in MW
-STORAGE_STEP    = 10 #capacity in MWh
+STORAGE_STEP    = 40 #capacity in MWh
 
 
 DEFAULT_SOLAR_POWER = conf.SOLAR_TOTAL_PROD / (365 * 24)  #current power in MW

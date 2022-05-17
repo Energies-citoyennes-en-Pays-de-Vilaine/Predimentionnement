@@ -3,7 +3,6 @@ from typing import *
 from datetime import datetime, timedelta
 from math import floor
 import numpy as np
-import matplotlib.pyplot as plt
 class Period:
 	beginning : datetime
 	end : datetime
@@ -188,14 +187,14 @@ class Battery(PowerData):
 		self.power = np.copy(data.power)
 		self.dates = data.dates[:]
 		energy = 0.0
-		self.power[0] = 0.0
 		self.dated_energy = [0]
 		for i in range(len(self.dates) - 1):
 			time_delta = ((self.dates[i + 1] - self.dates[i]).seconds / 3600)
-			nextEnergy = energy + self.power[i + 1] * time_delta
+			nextEnergy = energy + self.power[i] * time_delta
 			nextEnergy = min(max(nextEnergy, 0), self.capacity)
-			self.power[i + 1] = (nextEnergy - energy) / time_delta
+			self.power[i] = (nextEnergy - energy) / time_delta
 			energy = nextEnergy
 			self.dated_energy.append(nextEnergy)
+		self.power[-1] = 0.0
 			
 			
