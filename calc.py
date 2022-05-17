@@ -3,7 +3,7 @@ from typing import *
 from datetime import datetime, timedelta
 from math import floor
 import numpy as np
-
+import matplotlib.pyplot as plt
 class Period:
 	beginning : datetime
 	end : datetime
@@ -179,13 +179,23 @@ class Battery(PowerData):
 	def __init__(self, capacity : float, dates: List[datetime] = None, power: np.array = None):
 		if dates is None or power is None:
 			dates = []
-			power = np.array()
+			power = np.array([])
 		super().__init__(dates, power)
 		self.capacity = capacity #capacity is in wh
-		self.energy = 0
-	def add_point(self, date: datetime, power : float):
-		if (len(self.dates) != 0):
-			self.energy += min(max(power * ((date - self.dates[-1]).seconds/3600) + self.energy, 0), self.capacity)
-		self.power.append(self.energy)
-		self.dates.append(date)
+		#convention is here power is positive to charge the battery
+		self.dated_energy = []
+	def from_power_data(self, data : PowerData):
+		self.power = np.copy(data.power)
+		self.dates = data.dates[:]
+		energy = 0.0
+		self.power[0] = 0.0
+		self.dated_energy = [0]
+		for i in range(len(self.dates) - 1):
+			time_delta = ((self.dates[i + 1] - self.dates[i]).seconds / 3600)
+			nextEnergy = energy + self.power[i + 1] * time_delta
+			nextEnergy = min(max(nextEnergy, 0), self.capacity)
+			self.power[i + 1] = (nextEnergy - energy) / time_delta
+			energy = nextEnergy
+			self.dated_energy.append(nextEnergy)
+			
 			
