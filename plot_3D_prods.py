@@ -1,19 +1,21 @@
 from dataLoader import *
 from datetime import *
 from calc import Battery
+from sim import *
 import numpy as np
 import matplotlib.pyplot as plt
 import configuration as conf
 
 SIM_SOLAR_WIND   = False
 SIM_WIND_STORAGE = True
+NEW_CONFIG_TEST = False
 
 dl = dataloader()
 SIZE_SIM_X = 15
-SIZE_SIM_Y = 80
+SIZE_SIM_Y = 100
 SOLAR_PROD_STEP = 0.75#power in MW
 WIND_PROD_STEP  = 2.5#power in MW
-STORAGE_STEP    = 1.5 #capacity in MWh
+STORAGE_STEP    = 0.1 #capacity in MWh
 
 
 DEFAULT_SOLAR_POWER = conf.SOLAR_TOTAL_PROD / (365 * 24)  #current power in MW
@@ -35,20 +37,22 @@ print("getting user slice")
 user = user.get_slice(intersec)
 print("prod set to scale")
 print(windProd.get_average())
-windProd = windProd.get_scaled([1.0, 1.0],[
-	Period("01/01/2020:00", "01/01/2021:00"),
-	Period("01/01/2021:00", "01/01/2022:00")
-	])
+windProd = windProd.get_scaled(1.0)
 print("setting solar prod to scale and adding it to prod")
-solarProd = solarProd.get_scaled([1.0, 1.0], [
-	Period("01/01/2020:00", "01/01/2021:00"),
-	Period("01/01/2021:00", "01/01/2022:00")
-	])
-bioenergy_prod = bioenergy_prod.get_scaled([conf.BIOENERGY_TOTAL_PROD * conf.NB_PARTICULIERS * conf.PRODUCTION_SCALING_FACTOR]*2, [
-	Period("01/01/2020:00", "01/01/2021:00"),
-	Period("01/01/2021:00", "01/01/2022:00")
-	])
+solarProd = solarProd.get_scaled(1.0)
+bioenergyProd = bioenergy_prod.get_scaled(1.0)
 
+sim_params = SimParams(
+	has_solar=True,
+	has_wind=True,
+	has_bioenergy=True,
+	has_consumer_scaling=False,
+	solar_curve=solarProd,
+	wind_curve=windProd,
+	bioenergy_curve=bioenergyProd,
+	consumer_curves=user,
+	has_flexibility=False
+) 
 
 if (SIM_SOLAR_WIND == True):
 	toSimSolarProd       = []
@@ -101,7 +105,7 @@ if (SIM_SOLAR_WIND == True):
 	ax.set_ylabel("solar prod (MW)")
 	ax.plot_surface(np.array(toSimWindProd), np.array(toSimSolarProd), np.array(energyImportRatio), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
-if (SIM_WIND_STORAGE == True):
+if (SIM_WIND_STORAGE == True and not NEW_CONFIG_TEST is True):
 	sim_solar_prod       =  solarProd *( DEFAULT_SOLAR_POWER * 1e6 / (conf.CA_PONTCHATEAU_POPULATION + conf.CA_REDON_POPULATION))
 	toSimWindProd        = []
 	toSimBatteryCapacity = []
@@ -124,7 +128,7 @@ if (SIM_WIND_STORAGE == True):
 		for y in range(SIZE_SIM_Y):
 			battery = Battery(STORAGE_STEP * (1e6 * y / (conf.CA_PONTCHATEAU_POPULATION + conf.CA_REDON_POPULATION)))
 			toSimBatteryCapacity[-1].append(y * STORAGE_STEP )
-			toSimWindProd       [-1].append(x * WIND_PROD_STEP)
+			toSimWindProd       [-1].append(x* WIND_PROD_STEP)
 			battery.from_power_data(sim_diff_without_cap)
 			sim_prod = sim_prod_without_cap - battery
 			sim_cover_need = sim_prod / user
@@ -157,5 +161,18 @@ if (SIM_WIND_STORAGE == True):
 	ax.set_xlabel("wind prod (MW)")
 	ax.set_ylabel("Battery capacity (MW)")
 	ax.plot_surface(np.array(toSimWindProd), np.array(toSimBatteryCapacity), np.array(energyImportRatio), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-	
+if NEW_CONFIG_TEST is True:
+	sim_params.wind_power = 6.5 * 1e6 / (conf.CA_PONTCHATEAU_POPULATION + conf.CA_REDON_POPULATION)
+	sim_params.has_battery = True
+	sim_params.battery_capacity = 1*1e6 / (conf.CA_PONTCHATEAU_POPULATION + conf.CA_REDON_POPULATION)
+	sim_params.has_solar = False
+	sim_params.has_consumer_scaling = [False]
+	sim_params.has_wind = True
+	sim_params.has_wind_scaling = True
+	results : SimResults = simulate_senario(sim_params)
+	plt.subplot(211)
+	plt.plot(results.total_production.dates, results.total_production.power)
+	plt.plot(results.production_before_batteries.dates, results.total_consumption.power)
+	plt.subplot(212)
+	plt.plot(results.battery.dates, results.battery.dated_energy)
 plt.show()

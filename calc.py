@@ -26,6 +26,8 @@ class PowerData():
 		return True
 
 	def __add__(self, p2 : Union[PowerData, float, int]) -> PowerData:
+		if p2 is None:
+			return self.get_copy()
 		if (isinstance(p2, float)):
 			return PowerData(self.dates[:], p2 + self.power)
 		if (isinstance(p2, int)):
@@ -111,6 +113,26 @@ class PowerData():
 			else:
 				j += 1
 		return toReturn
+	def get_multiple_intersect(self, p : List[PowerData]):
+		toReturn : List[datetime] = []
+		index  : List[int]      = [0] * len(p)
+		#dates are still assumed to be in growing order
+		for i in range(len(self.dates)):
+			currentDate = self.dates[i]
+			toBeAdded : bool = True
+			for j in range(len(index)):
+				while(index[j] < len(p[j].dates) and p[j].dates[index[j]] < currentDate):
+					index[j] += 1
+				if (index[j] >= len(p[j].dates)):
+					return toReturn
+				if (p[j].dates[index[j]] != currentDate):
+					toBeAdded = False
+					continue
+			if toBeAdded is True:
+				toReturn.append(currentDate)
+		return toReturn
+				
+
 	def get_rolling_average(self, count) -> PowerData:
 		current_sum = 0
 		powerToReturn = []
