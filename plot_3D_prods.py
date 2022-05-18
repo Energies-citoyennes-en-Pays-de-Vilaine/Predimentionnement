@@ -9,11 +9,11 @@ SIM_SOLAR_WIND   = False
 SIM_WIND_STORAGE = True
 
 dl = dataloader()
-SIZE_SIM_X = 7
-SIZE_SIM_Y = 40
+SIZE_SIM_X = 15
+SIZE_SIM_Y = 80
 SOLAR_PROD_STEP = 0.75#power in MW
 WIND_PROD_STEP  = 2.5#power in MW
-STORAGE_STEP    = 40 #capacity in MWh
+STORAGE_STEP    = 1.5 #capacity in MWh
 
 
 DEFAULT_SOLAR_POWER = conf.SOLAR_TOTAL_PROD / (365 * 24)  #current power in MW
@@ -34,6 +34,7 @@ solarProd = solarProd.get_slice(intersec)
 print("getting user slice")
 user = user.get_slice(intersec)
 print("prod set to scale")
+print(windProd.get_average())
 windProd = windProd.get_scaled([1.0, 1.0],[
 	Period("01/01/2020:00", "01/01/2021:00"),
 	Period("01/01/2021:00", "01/01/2022:00")
@@ -125,7 +126,7 @@ if (SIM_WIND_STORAGE == True):
 			toSimBatteryCapacity[-1].append(y * STORAGE_STEP )
 			toSimWindProd       [-1].append(x * WIND_PROD_STEP)
 			battery.from_power_data(sim_diff_without_cap)
-			sim_prod = sim_diff_without_cap - battery
+			sim_prod = sim_prod_without_cap - battery
 			sim_cover_need = sim_prod / user
 			sim_energy_import = (user - sim_prod).get_bigger_than(0.0)
 			sim_energy_export = (sim_prod - user).get_bigger_than(0.0)
