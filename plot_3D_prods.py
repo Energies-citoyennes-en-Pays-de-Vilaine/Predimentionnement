@@ -5,10 +5,10 @@ from sim import *
 import numpy as np
 import matplotlib.pyplot as plt
 import configuration as conf
-
+from time import time
 SIM_SOLAR_WIND   = False
 SIM_WIND_STORAGE = True
-NEW_CONFIG_TEST = False
+NEW_CONFIG_TEST = True
 
 dl = dataloader()
 SIZE_SIM_X = 15
@@ -104,7 +104,7 @@ if (SIM_SOLAR_WIND == True):
 	ax.set_xlabel("wind prod (MW)")
 	ax.set_ylabel("solar prod (MW)")
 	ax.plot_surface(np.array(toSimWindProd), np.array(toSimSolarProd), np.array(energyImportRatio), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-
+cumulated_battery_sim_time = 0
 if (SIM_WIND_STORAGE == True and not NEW_CONFIG_TEST is True):
 	sim_solar_prod       =  solarProd *( DEFAULT_SOLAR_POWER * 1e6 / (conf.CA_PONTCHATEAU_POPULATION + conf.CA_REDON_POPULATION))
 	toSimWindProd        = []

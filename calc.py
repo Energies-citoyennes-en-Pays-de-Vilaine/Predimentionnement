@@ -197,6 +197,7 @@ class PowerData():
 
 class Battery(PowerData):
 	capacity : float
+	dated_energy : np.array(float)
 	def __init__(self, capacity : float, dates: List[datetime] = None, power: np.array = None):
 		if dates is None or power is None:
 			dates = []
@@ -209,14 +210,14 @@ class Battery(PowerData):
 		self.power = np.copy(data.power)
 		self.dates = data.dates[:]
 		energy = 0.0
-		self.dated_energy = [0]
+		self.dated_energy = np.zeros(len(self.dates))
 		for i in range(len(self.dates) - 1):
 			time_delta = ((self.dates[i + 1] - self.dates[i]).seconds / 3600)
 			nextEnergy = energy + self.power[i] * time_delta
 			nextEnergy = min(max(nextEnergy, 0), self.capacity)
 			self.power[i] = (nextEnergy - energy) / time_delta
 			energy = nextEnergy
-			self.dated_energy.append(nextEnergy)
+			self.dated_energy[i+1] = nextEnergy
 		self.power[-1] = 0.0
 			
 			
