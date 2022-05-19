@@ -1,6 +1,7 @@
 from calc import *
 from typing import *
 from dataclasses import dataclass
+from __future__ import annotations
 class SimParams():
 	#when implemented, the batteries will come after the flexibility, or both will be used by python's optimize
 	#defaults to false
@@ -80,12 +81,39 @@ class SimParams():
 		self.consumer_power          : Union[float, List[float]] = consumer_power
 		self.consumer_contrib        : Union[float, List[float]] = consumer_contrib
 
-		self.solar_curve             : PowerData = solar_curve 
-		self.wind_curve              : PowerData = wind_curve 
-		self.bioenergy_curve         : PowerData = bioenergy_curve
+		self.solar_curve             : PowerData = solar_curve.get_copy() 
+		self.wind_curve              : PowerData = wind_curve.get_copy()
+		self.bioenergy_curve         : PowerData = bioenergy_curve.get_copy()
 		self.consumer_curves         : Union[PowerData, List[PowerData]] = consumer_curves
 		
 		self.check_and_convert_params()
+
+	def get_clone(self) -> SimParams:
+		return SimParams(
+			has_solar                     = self.has_solar                    ,
+			has_wind                      = self.has_wind                     ,
+			has_bioenergy                 = self.has_bioenergy                ,
+			has_piloted_bioenergy         = self.has_piloted_bioenergy        ,
+			has_battery                   = self.has_battery                  ,
+			has_flexibility               = self.has_flexibility              ,
+			has_solar_scaling             = self.has_piloted_bioenergy_scaling, 
+			has_wind_scaling              = self.has_bioenergy_scaling        , 
+			has_bioenergy_scaling         = self.has_wind_scaling             , 
+			has_piloted_bioenergy_scaling = self.has_solar_scaling            , 
+			has_consumer_scaling          = self.has_consumer_scaling if isinstance(self.has_consumer_scaling, bool) else self.has_consumer_scaling[:],
+			solar_power                   = self.solar_power                  ,
+			wind_power                    = self.wind_power                   ,
+			bioenergy_power               = self.bioenergy_power              ,
+			battery_capacity              = self.battery_capacity             ,
+			piloted_bioenergy_power       = self.piloted_bioenergy_power      ,
+			flexibility_ratio             = self.flexibility_ratio if isinstance(self.flexibility_ratio, float) else self.flexibility_ratio[:],
+			consumer_power                = self.consumer_power    if isinstance(self.consumer_power   , float) else self.consumer_power   [:],
+			consumer_contrib              = self.consumer_contrib[:]          ,
+			solar_curve                   = self.solar_curve    .get_clone()  ,
+			wind_curve                    = self.wind_curve     .get_clone()  ,
+			bioenergy_curve               = self.bioenergy_curve.get_clone()  ,
+			consumer_curves               = self.consumer_curves if isinstance(self.consumer_curves, PowerData) else self.consumer_curves[:]
+		)
 
 	def get_wind_curve(self) -> PowerData:
 		if (not self.has_wind):
