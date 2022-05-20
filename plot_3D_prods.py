@@ -8,7 +8,7 @@ import configuration as conf
 from time import time
 SIM_SOLAR_WIND   = False
 SIM_WIND_STORAGE = True
-NEW_CONFIG_TEST = True
+NEW_CONFIG_TEST = False
 
 dl = dataloader()
 SIZE_SIM_X = 15

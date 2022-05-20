@@ -1,7 +1,8 @@
+from __future__ import annotations
 from calc import *
 from typing import *
 from dataclasses import dataclass
-from __future__ import annotations
+
 class SimParams():
 	#when implemented, the batteries will come after the flexibility, or both will be used by python's optimize
 	#defaults to false
