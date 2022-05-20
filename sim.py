@@ -1,5 +1,8 @@
 from __future__ import annotations
-from calc import *
+if len(__name__.split("."))==1:
+	from calc import *
+else:
+	from .calc import *
 from typing import *
 from dataclasses import dataclass
 
