@@ -115,7 +115,8 @@ class SimParams():
 			bioenergy_curve               = self.bioenergy_curve.get_clone()  ,
 			consumer_curves               = self.consumer_curves if isinstance(self.consumer_curves, PowerData) else self.consumer_curves[:]
 		)
-
+	def get_copy(self) -> SimParams:
+		return self.get_clone()
 	def get_wind_curve(self) -> PowerData:
 		if (not self.has_wind):
 			raise Exception("no wind curve in this config")
@@ -208,6 +209,7 @@ class SimParams():
 			self.bioenergy_curve = self.bioenergy_curve.get_slice(intersect)
 		if (self.has_wind):
 			self.wind_curve = self.wind_curve.get_slice(intersect)
+		
 @dataclass(init=True)
 class SimResults():
 	total_consumption           : PowerData
