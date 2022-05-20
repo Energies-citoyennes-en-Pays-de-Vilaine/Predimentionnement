@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 NB_EOLIENNE = 13
+PROD_PER_WINDTURBINE = 0.577 #average prod per wind turbine in MW
 CA_REDON_POPULATION = 29_521
 CA_PONTCHATEAU_POPULATION = 14_399
 NB_PARTICULIERS = 200
@@ -20,6 +21,7 @@ class ConfigObject():
 	ADD_SOLAR                 : bool
 	BIOENERGY_TOTAL_PROD      : int
 	ADD_BIOENERGY             : bool
+	PROD_PER_WINDTURBINE      : float
 config = ConfigObject(
 	NB_EOLIENNE               =  NB_EOLIENNE               ,
 	CA_REDON_POPULATION       =  CA_REDON_POPULATION       ,
@@ -29,5 +31,6 @@ config = ConfigObject(
 	PRODUCTION_SCALING_FACTOR =  PRODUCTION_SCALING_FACTOR ,
 	ADD_SOLAR                 =  ADD_SOLAR                 ,
 	BIOENERGY_TOTAL_PROD      =  BIOENERGY_TOTAL_PROD      ,
-	ADD_BIOENERGY             =  ADD_BIOENERGY             
+	ADD_BIOENERGY             =  ADD_BIOENERGY            ,
+	PROD_PER_WINDTURBINE      = PROD_PER_WINDTURBINE,  
 )
