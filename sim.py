@@ -113,9 +113,9 @@ class SimParams():
 			flexibility_ratio             = self.flexibility_ratio if isinstance(self.flexibility_ratio, float) else self.flexibility_ratio[:],
 			consumer_power                = self.consumer_power    if isinstance(self.consumer_power   , float) else self.consumer_power   [:],
 			consumer_contrib              = self.consumer_contrib[:]          ,
-			solar_curve                   = self.solar_curve    .get_clone()  ,
-			wind_curve                    = self.wind_curve     .get_clone()  ,
-			bioenergy_curve               = self.bioenergy_curve.get_clone()  ,
+			solar_curve                   = self.solar_curve    .get_copy()  ,
+			wind_curve                    = self.wind_curve     .get_copy()  ,
+			bioenergy_curve               = self.bioenergy_curve.get_copy()  ,
 			consumer_curves               = self.consumer_curves if isinstance(self.consumer_curves, PowerData) else self.consumer_curves[:]
 		)
 	def get_copy(self) -> SimParams:
