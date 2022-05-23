@@ -232,21 +232,21 @@ class SimResults():
 	battery                     : Battery
 	def get_slice_over_period(self, begin : datetime, end : datetime) -> SimResults:
 		return SimResults(
-			total_consumption           = self.total_consumption          .get_slice_over_period(begin, end),
-			production_before_batteries = self.production_before_batteries.get_slice_over_period(begin, end), 
-			total_production            = self.total_production           .get_slice_over_period(begin, end), 
-			imported_power              = self.imported_power             .get_slice_over_period(begin, end), 
-			exported_power              = self.exported_power             .get_slice_over_period(begin, end), 
-			battery                     = self.battery                    .get_slice_over_period(begin, end) 
+			total_consumption           = self.total_consumption          .get_slice_over_period(begin, end) if (self.total_consumption           != None) else None,
+			production_before_batteries = self.production_before_batteries.get_slice_over_period(begin, end) if (self.production_before_batteries != None) else None, 
+			total_production            = self.total_production           .get_slice_over_period(begin, end) if (self.total_production            != None) else None, 
+			imported_power              = self.imported_power             .get_slice_over_period(begin, end) if (self.imported_power              != None) else None, 
+			exported_power              = self.exported_power             .get_slice_over_period(begin, end) if (self.exported_power              != None) else None, 
+			battery                     = self.battery                    .get_slice_over_period(begin, end) if (self.battery                     != None) else None, 
 			)
 	def get_rolling_average(self, width : int) -> SimResults:
 		return SimResults(
-			total_consumption           = self.total_consumption          .get_rolling_average(width),
-			production_before_batteries = self.production_before_batteries.get_rolling_average(width),
-			total_production            = self.total_production           .get_rolling_average(width),
-			imported_power              = self.imported_power             .get_rolling_average(width),
-			exported_power              = self.exported_power             .get_rolling_average(width),
-			battery                     = self.battery                    .get_rolling_average(width),
+			total_consumption           = self.total_consumption          .get_rolling_average(width) if (self.total_consumption           != None) else None,
+			production_before_batteries = self.production_before_batteries.get_rolling_average(width) if (self.production_before_batteries != None) else None,
+			total_production            = self.total_production           .get_rolling_average(width) if (self.total_production            != None) else None,
+			imported_power              = self.imported_power             .get_rolling_average(width) if (self.imported_power              != None) else None,
+			exported_power              = self.exported_power             .get_rolling_average(width) if (self.exported_power              != None) else None,
+			battery                     = self.battery                    .get_rolling_average(width) if (self.battery                     != None) else None,
 			)
 def simulate_senario(params: SimParams) -> SimResults:
 	total_consumption : PowerData = None #batteries are in reciever convention but are considered a "producer"
