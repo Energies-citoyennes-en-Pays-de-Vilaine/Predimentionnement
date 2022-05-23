@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 if len(__name__.split("."))==1:
 	from calc import *
 else:
@@ -38,6 +39,9 @@ class SimParams():
 	bioenergy_curve         : PowerData
 	consumer_curves         : Union[List[PowerData], PowerData]
 
+	#date params, defaults to None
+	begin                   : datetime
+	end                     : datetime
 	def __init__(self, \
 		has_solar                     : bool = False,\
 		has_wind                      : bool = False,\
@@ -61,7 +65,9 @@ class SimParams():
 		solar_curve                   : PowerData = None,\
 		wind_curve                    : PowerData = None,\
 		bioenergy_curve               : PowerData = None,\
-		consumer_curves               : Union[List[PowerData], PowerData] = None\
+		consumer_curves               : Union[List[PowerData], PowerData] = None,\
+		begin                         : datetime = None,\
+		end                           : datetime = None
 	) -> None:
 		self.has_solar             : bool = has_solar
 		self.has_wind              : bool = has_wind
@@ -89,7 +95,10 @@ class SimParams():
 		self.wind_curve              : PowerData = wind_curve.get_copy()
 		self.bioenergy_curve         : PowerData = bioenergy_curve.get_copy()
 		self.consumer_curves         : Union[PowerData, List[PowerData]] = consumer_curves
-		
+
+		self.begin                   : datetime = begin
+		self.end                     : datetime = end
+
 		self.check_and_convert_params()
 
 	def get_clone(self) -> SimParams:
@@ -124,28 +133,28 @@ class SimParams():
 		if (not self.has_wind):
 			raise Exception("no wind curve in this config")
 		if (self.has_wind_scaling):
-			return self.wind_curve.get_scaled(self.wind_power)
-		return self.wind_curve.get_copy()
+			return self.wind_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.wind_power)
+		return self.wind_curve.get_slice_over_period(self.begin, self.end)
 
 	def get_solar_curve(self) -> PowerData:
 		if (not self.has_solar):
 			raise Exception("no solar curve in this config")
 		if (self.has_solar_scaling):
-			return self.solar_curve.get_scaled(self.solar_power)
-		return self.solar_curve.get_copy()
+			return self.solar_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.solar_power)
+		return self.solar_curve.get_slice_over_period(self.begin, self.end)
 
 	def get_constant_bioenergy_curve(self) -> PowerData:
 		if (not self.has_bioenergy):
 			raise Exception("no non-piloted bioenergy curve in this config")
 		if (self.has_bioenergy_scaling):
-			return self.bioenergy_curve.get_scaled(self.bioenergy_power)
-		return self.bioenergy_curve.get_copy()
+			return self.bioenergy_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.bioenergy_power)
+		return self.bioenergy_curve.get_slice_over_period(self.begin, self.end)
 	
 	def get_consumers_agglomerated_curves(self) -> PowerData:
 		#usefull when there is no flexibility
 		toReturn : PowerData = None
 		for i in range(len(self.consumer_curves)):
-			curve = self.consumer_curves[i].get_copy()
+			curve = self.consumer_curves[i].get_slice_over_period(self.begin, self.end)
 			if toReturn is not None:
 				#this may be slow, a has_same_dates will later be added to powerdata
 				intersec = curve.get_intersect(toReturn)
@@ -162,7 +171,7 @@ class SimParams():
 	def get_consumers_curve_index(self, index : int = 0) -> PowerData:
 		if index >= len(self.consumer_curves) or index < 0:
 			raise Exception("index out of range")
-		curve = self.consumer_curves[index].get_copy()
+		curve = self.consumer_curves[index].get_slice_over_period(self.begin, self.end)
 		if self.has_consumer_scaling[index] is True:
 			curve = curve.get_scaled(self.consumer_power[index])
 		curve *= self.consumer_contrib[index]
@@ -221,6 +230,24 @@ class SimResults():
 	imported_power              : PowerData
 	exported_power              : PowerData
 	battery                     : Battery
+	def get_slice_over_period(self, begin : datetime, end : datetime) -> SimResults:
+		return SimResults(
+			total_consumption           = self.total_consumption          .get_slice_over_period(begin, end),
+			production_before_batteries = self.production_before_batteries.get_slice_over_period(begin, end), 
+			total_production            = self.total_production           .get_slice_over_period(begin, end), 
+			imported_power              = self.imported_power             .get_slice_over_period(begin, end), 
+			exported_power              = self.exported_power             .get_slice_over_period(begin, end), 
+			battery                     = self.battery                    .get_slice_over_period(begin, end) 
+			)
+	def get_rolling_average(self, width : int) -> SimResults:
+		return SimResults(
+			total_consumption           = self.total_consumption          .get_rolling_average(width),
+			production_before_batteries = self.production_before_batteries.get_rolling_average(width),
+			total_production            = self.total_production           .get_rolling_average(width),
+			imported_power              = self.imported_power             .get_rolling_average(width),
+			exported_power              = self.exported_power             .get_rolling_average(width),
+			battery                     = self.battery                    .get_rolling_average(width),
+			)
 def simulate_senario(params: SimParams) -> SimResults:
 	total_consumption : PowerData = None #batteries are in reciever convention but are considered a "producer"
 	if not params.has_flexibility:
