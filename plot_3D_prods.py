@@ -8,7 +8,7 @@ import configuration as conf
 from time import time
 SIM_SOLAR_WIND   = False
 SIM_WIND_STORAGE = True
-NEW_CONFIG_TEST = False
+NEW_CONFIG_TEST  = True
 
 dl = dataloader()
 SIZE_SIM_X = 15
@@ -51,7 +51,8 @@ sim_params = SimParams(
 	wind_curve=windProd,
 	bioenergy_curve=bioenergyProd,
 	consumer_curves=user,
-	has_flexibility=False
+	has_flexibility=True,
+	flexibility_ratio=0.10
 ) 
 
 if (SIM_SOLAR_WIND == True):

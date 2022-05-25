@@ -6,6 +6,7 @@ else:
 	from .calc import *
 from typing import *
 from dataclasses import dataclass
+TOLERATED_ERROR = 1e-8
 
 class SimParams():
 	#when implemented, the batteries will come after the flexibility, or both will be used by python's optimize
@@ -248,31 +249,91 @@ class SimResults():
 			exported_power              = self.exported_power             .get_rolling_average(width) if (self.exported_power              != None) else None,
 			battery                     = self.battery                    .get_rolling_average(width) if (self.battery                     != None) else None,
 			)
+
+def simulate_flexibility(prod : PowerData, cons : PowerData, flex_ratio : float) -> Tuple[PowerData, PowerData]:
+	day_indices = []
+	last_date   = prod.dates[0]
+	prod = prod.get_copy()
+	cons = cons.get_copy()
+	diff = cons - prod
+	old_diff = diff.get_copy()
+	for i in range(len(prod.dates)):
+		#current idea : sort daily prod, cons and diff. Make an array with modif, and then process the data
+		if ((prod.dates[i] - last_date).days >= 1):
+			#time to sort data
+			day_indices = sorted(day_indices, key=lambda x: diff.power[x])
+			power_flex = 0
+			for j in day_indices:
+				power_flex += cons.power[j]
+			power_flex = power_flex * flex_ratio
+			power_down = power_flex
+			power_up   = power_flex
+			j = len(day_indices) - 1
+			while (power_down > TOLERATED_ERROR):
+				current_delta = power_down / len(day_indices)
+				if (j > 0):
+					current_delta = diff.power[day_indices[-1]] - diff.power[day_indices[j - 1]]
+				nb_points = len(day_indices) - j
+				power_to_substract = current_delta * nb_points
+				power_to_substract = min(power_down, power_to_substract)
+				if (power_to_substract != 0.0):
+					for k in range(nb_points):
+						cons.power[day_indices[k + j]] -= power_to_substract/nb_points
+						power_down -= power_to_substract/nb_points
+						diff.power[day_indices[k + j]] -= power_to_substract/nb_points
+				j -= 1
+				if (j < 0):
+					j = 0
+			j = 0
+			while (power_up > TOLERATED_ERROR):
+				current_delta = power_up / len(day_indices)
+				if (j < len(day_indices) - 1):
+					current_delta = diff.power[day_indices[j + 1]] - diff.power[day_indices[0]]
+				nb_points = j + 1
+				power_to_add = current_delta * nb_points
+				power_to_add = min(power_up, power_to_add)
+				if (power_to_add != 0.0):
+					for k in range(nb_points):
+						cons.power[day_indices[k]] += power_to_add/nb_points
+						power_up -= power_to_add/nb_points
+						diff.power[day_indices[k]] += power_to_add/nb_points
+				j += 1
+				if (j > len(day_indices) - 1):
+					j = len(day_indices) - 1
+			day_indices = []
+			last_date = prod.dates[i]
+		day_indices.append(i)
+	return (prod,cons)
+
 def simulate_senario(params: SimParams) -> SimResults:
 	total_consumption : PowerData = None #batteries are in reciever convention but are considered a "producer"
-	if not params.has_flexibility:
-		battery : Battery = None
-		total_consumption = params.get_consumers_agglomerated_curves()
-		production : PowerData = None
-		if params.has_wind:
-			production = params.get_wind_curve() + production
-		if params.has_solar:
-			production = params.get_solar_curve() + production
-		if params.has_bioenergy:
-			production = params.get_constant_bioenergy_curve() + production
-		production_before_batteries = production
-		diff_before_batteries = (production - total_consumption)
-		if params.has_battery:
-			battery = Battery(params.battery_capacity)
-			battery.from_power_data(diff_before_batteries)
-			production = production - battery
-		exported_power = (production - total_consumption).get_bigger_than(0.0)
-		imported_power = (total_consumption - production).get_bigger_than(0.0)
-		return SimResults(\
-				total_consumption = total_consumption,\
-				production_before_batteries = production_before_batteries,\
-				total_production=production,\
-				exported_power=exported_power,\
-				imported_power=imported_power,\
-				battery=battery
-			)
+	battery : Battery = None
+	total_consumption = params.get_consumers_agglomerated_curves()
+	production : PowerData = None
+	if params.has_wind:
+		production = params.get_wind_curve() + production
+	if params.has_solar:
+		production = params.get_solar_curve() + production
+	if params.has_bioenergy:
+		production = params.get_constant_bioenergy_curve() + production
+	production_before_flexibility = production.get_copy()
+	diff_before_flexibility = (production - total_consumption)
+	if (params.has_flexibility):
+		(production, total_consumption) = simulate_flexibility(production, total_consumption, params.flexibility_ratio[0])##to test for now, has to be changed for the flexibility to be on each consumer
+
+	production_before_batteries = production.get_copy()
+	diff_before_batteries = (production - total_consumption)
+	if params.has_battery:
+		battery = Battery(params.battery_capacity)
+		battery.from_power_data(diff_before_batteries)
+		production = production - battery
+	exported_power = (production - total_consumption).get_bigger_than(0.0)
+	imported_power = (total_consumption - production).get_bigger_than(0.0)
+	return SimResults(\
+			total_consumption = total_consumption,\
+			production_before_batteries = production_before_batteries,\
+			total_production=production,\
+			exported_power=exported_power,\
+			imported_power=imported_power,\
+			battery=battery
+		)
