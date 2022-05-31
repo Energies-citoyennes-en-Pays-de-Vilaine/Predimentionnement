@@ -102,7 +102,6 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 	{
 		if (dates[i] - last_date > delta_dates || i == count - 1)
 		{
-			printf("%i %f\n",j, total_power);
 			int width = i - j;
 			size_t* day_indices = malloc(sizeof(size_t) * width);
 			for (int k = 0; k < width; k++){
