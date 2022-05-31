@@ -81,30 +81,84 @@ void sort_indices(size_t* indices, double* diff, int length)
 	merge_sort_indices(indices, diff, 0, length / 2, length / 2, length - length / 2);
 	merge_arrays(indices, diff, 0, length / 2, length / 2, length - length / 2);
 }
-/*
-void sim_flex(double* production, double* consumption, double* dates, size_t count, double delta_dates, double flex_ratio)
+
+double* caculate_diff(double* production, double* consumption, size_t count)
 {
 	double* diff = malloc(count * sizeof(double));
 	for (int i = 0; i < count; i++)
 	{
 		diff[i] = consumption[i] - production[i]; 
 	}
+	return diff;
+}
+
+void sim_flex(double* production, double* consumption, double* dates, size_t count, double delta_dates, double flex_ratio)
+{
+	double* diff = caculate_diff(production, consumption, count);
 	double last_date = dates[0];
+	double total_power = 0;
 	int j = 0;
 	for (int i = 0; i < count; i++)
 	{
-		if (dates[i] - last_date > delta_dates)
+		if (dates[i] - last_date > delta_dates || i == count - 1)
 		{
-			size_t* day_indices = malloc(sizeof(size_t) * (i - j));
-			for (int k = 0; k < (i - j); k++)
-				day_indices[k] = k + j;
+			printf("%i %f\n",j, total_power);
+			int width = i - j;
+			size_t* day_indices = malloc(sizeof(size_t) * width);
+			for (int k = 0; k < width; k++){
+				day_indices[k] = k + j; 
+			}
+			sort_indices(day_indices, diff, width);
 
-		
+			double flex_up = total_power * flex_ratio;
+			double flex_down = flex_up;
+			int right_index = width - 1;
+			double diff_with_last;
+			while (flex_down > TOLERATED_ERROR)
+			{
+				diff_with_last = flex_down / (width - right_index);
+				if (right_index > 0)
+				{
+					diff_with_last = diff[day_indices[right_index]] - diff[day_indices[right_index - 1]];
+				}
 
-
-
+				diff_with_last = MIN(diff_with_last, flex_down / (width - right_index));
+				for (int i = right_index; i < width; i++)
+				{
+					diff[day_indices[i]] -= diff_with_last;
+					consumption[day_indices[i]] -= diff_with_last;
+					flex_down -= diff_with_last;
+				}
+				if (right_index > 0)
+					right_index --;
+			}
+			
+			int left_index = 0;
+			while (flex_up > TOLERATED_ERROR)
+			{
+				diff_with_last = flex_up / (left_index + 1);
+				if (left_index + 1 < width)
+				{
+					diff_with_last = diff[day_indices[left_index + 1]] - diff[day_indices[left_index]];
+				}
+				diff_with_last = MIN(diff_with_last, flex_up / (left_index + 1));
+				for (int i = 0; i < left_index + 1; i++)
+				{
+					diff[day_indices[i]] += diff_with_last;
+					consumption[day_indices[i]] += diff_with_last;
+					flex_up -= diff_with_last;
+				}
+				if (left_index + 1 < width)
+				left_index ++;
+			}
+			
+			//going to next period
+			last_date = dates[i];
+			j = i;
+			total_power = 0;
 			free(day_indices);
 		}
+		total_power += consumption[i];
 	}
 	free(diff);
-}*/
+}
