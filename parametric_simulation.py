@@ -7,21 +7,21 @@ from multiprocessing import Process, Manager
 PARAMS = {
 	"wind_min"               : 5, #average wind prod in MW
 	"wind_max"               : 30,
-	"wind_nb_points"         : 50,
+	"wind_nb_points"         : 5,
 	"sun_min"                : 1, #average solar prod in MW
 	"sun_max"                : 40,
-	"sun_nb_points"          : 30,
+	"sun_nb_points"          : 3,
 	"bio_min"                : 1, #average bioenergy prod in MW (Methanol)
 	"bio_max"                : 20,
-	"bio_nb_points"          : 40,
+	"bio_nb_points"          : 4,
 	"flex_min"               : 0.01, #flexibility in %
 	"flex_max"               : 0.1,
-	"flex_nb_points"         : 40,
+	"flex_nb_points"         : 4,
 	"battery_min"            : 0, #battery capacity in MWh
 	"battery_max"            : 10,
-	"battery_nb_points"      : 40,
+	"battery_nb_points"      : 4,
 	"scaling_factor_for_pop" : 1e6 / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
-	"thread_count"           : 1000,
+	"thread_count"           : 1,
 }
 if (len(argv) < 2):
 	print("you need to specify the result file location")
