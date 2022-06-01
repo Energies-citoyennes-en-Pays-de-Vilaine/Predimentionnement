@@ -100,7 +100,7 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 	int j = 0;
 	for (int i = 0; i < count; i++)
 	{
-		if (dates[i] - last_date > delta_dates || i == count - 1)
+		if (dates[i] - last_date >= delta_dates || i == count - 1)
 		{
 			int width = i - j;
 			size_t* day_indices = malloc(sizeof(size_t) * width);

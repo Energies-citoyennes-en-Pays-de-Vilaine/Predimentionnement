@@ -71,6 +71,8 @@ class PowerData():
 		self.power = power
 		self.dates = dates[:]
 
+	def get_dates_as_timestamps(self) -> np.array:
+		return np.array([d.timestamp() for d in self.dates], dtype=float)
 	def get_slice(self, dates: List[datetime]) -> PowerData:
 		power = []
 		i = 0

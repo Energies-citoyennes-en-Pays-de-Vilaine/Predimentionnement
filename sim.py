@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+import os 
 if len(__name__.split("."))==1:
 	from calc import *
 else:
@@ -7,6 +8,8 @@ else:
 from typing import *
 from dataclasses import dataclass
 TOLERATED_ERROR = 1e-8
+from ctypes import *
+libsim = CDLL(os.path.dirname(os.path.realpath(__file__)) + "/cmodules/libsim.so")
 
 class SimParams():
 	#when implemented, the batteries will come after the flexibility, or both will be used by python's optimize
@@ -305,6 +308,19 @@ def simulate_flexibility(prod : PowerData, cons : PowerData, flex_ratio : float)
 		day_indices.append(i)
 	return (prod,cons)
 
+def simulate_flexibility_c(prod : PowerData, cons : PowerData, flex_ratio: float, deltatime : float):
+	prod = prod.get_copy()
+	cons = cons.get_copy()
+	libsim.sim_flex(
+	prod.power.ctypes.data_as(POINTER(c_double)),
+	cons.power.ctypes.data_as(POINTER(c_double)),
+	prod.get_dates_as_timestamps().ctypes.data_as(POINTER(c_double)),
+	len(prod.power),
+	c_double(deltatime),
+	c_double(flex_ratio))
+	return (prod,cons)
+	pass
+
 def simulate_senario(params: SimParams) -> SimResults:
 	total_consumption : PowerData = None #batteries are in reciever convention but are considered a "producer"
 	battery : Battery = None
@@ -319,8 +335,7 @@ def simulate_senario(params: SimParams) -> SimResults:
 	production_before_flexibility = production.get_copy()
 	diff_before_flexibility = (production - total_consumption)
 	if (params.has_flexibility):
-		(production, total_consumption) = simulate_flexibility(production, total_consumption, params.flexibility_ratio[0])##to test for now, has to be changed for the flexibility to be on each consumer
-
+		(production, total_consumption) = simulate_flexibility_c(production, total_consumption, params.flexibility_ratio[0], float(24*3600))
 	production_before_batteries = production.get_copy()
 	diff_before_batteries = (production - total_consumption)
 	if params.has_battery:
