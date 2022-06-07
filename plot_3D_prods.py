@@ -8,14 +8,14 @@ import configuration as conf
 from time import time
 SIM_SOLAR_WIND   = False
 SIM_WIND_STORAGE = True
-NEW_CONFIG_TEST  = True
+NEW_CONFIG_TEST  = False
 
 dl = dataloader()
 SIZE_SIM_X = 15
-SIZE_SIM_Y = 100
+SIZE_SIM_Y = 10
 SOLAR_PROD_STEP = 0.75#power in MW
 WIND_PROD_STEP  = 2.5#power in MW
-STORAGE_STEP    = 0.1 #capacity in MWh
+STORAGE_STEP    = 10 #capacity in MWh
 
 
 DEFAULT_SOLAR_POWER = conf.SOLAR_TOTAL_PROD / (365 * 24)  #current power in MW

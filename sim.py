@@ -98,7 +98,7 @@ class SimParams():
 		self.solar_curve             : PowerData = solar_curve.get_copy() 
 		self.wind_curve              : PowerData = wind_curve.get_copy()
 		self.bioenergy_curve         : PowerData = bioenergy_curve.get_copy()
-		self.consumer_curves         : Union[PowerData, List[PowerData]] = consumer_curves
+		self.consumer_curves         : Union[PowerData, List[PowerData]] = consumer_curves if isinstance(consumer_curves, PowerData) else [c.get_copy() for c in consumer_curves]
 
 		self.begin                   : datetime = begin
 		self.end                     : datetime = end
@@ -124,12 +124,12 @@ class SimParams():
 			battery_capacity              = self.battery_capacity             ,
 			piloted_bioenergy_power       = self.piloted_bioenergy_power      ,
 			flexibility_ratio             = self.flexibility_ratio if isinstance(self.flexibility_ratio, float) else self.flexibility_ratio[:],
-			consumer_power                = self.consumer_power    if isinstance(self.consumer_power   , float) else self.consumer_power   [:],
+			consumer_power                = self.consumer_power    if isinstance(self.consumer_power   , float) else self.consumer_power   [:], 
 			consumer_contrib              = self.consumer_contrib[:]          ,
 			solar_curve                   = self.solar_curve    .get_copy()  ,
 			wind_curve                    = self.wind_curve     .get_copy()  ,
 			bioenergy_curve               = self.bioenergy_curve.get_copy()  ,
-			consumer_curves               = self.consumer_curves if isinstance(self.consumer_curves, PowerData) else self.consumer_curves[:]
+			consumer_curves               = self.consumer_curves if isinstance(self.consumer_curves, PowerData) else [c.get_copy() for c in self.consumer_curves]
 		)
 	def get_copy(self) -> SimParams:
 		return self.get_clone()

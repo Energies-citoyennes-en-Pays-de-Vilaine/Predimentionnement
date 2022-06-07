@@ -115,6 +115,16 @@ class PowerData():
 			else:
 				j += 1
 		return toReturn
+
+	def count_greater_than(self, val:float) -> int:
+		count = 0
+		for power in self.power:
+			if (power > val):
+				count += 1
+		return count
+	def get_percentile(self, percentile : float) -> float :
+		return sorted(self.power)[int(percentile * len(self.power) / 100)]
+
 	def get_multiple_intersect(self, p : List[PowerData]):
 		toReturn : List[datetime] = []
 		index  : List[int]      = [0] * len(p)

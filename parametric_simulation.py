@@ -2,8 +2,9 @@ from sim import *
 from dataLoader import *
 from configuration import config
 from sys import argv, getsizeof
-import time
+from time import time
 from multiprocessing import Process, Manager
+t0 = time()
 PARAMS = {
 	"wind_min"               : 5, #average wind prod in MW
 	"wind_max"               : 30,
@@ -50,7 +51,8 @@ windProd = windProd.get_scaled(1.0)
 print("setting solar prod to scale and adding it to prod")
 solarProd = solarProd.get_scaled(1.0)
 bioenergyProd = bioenergy_prod.get_scaled(1.0)
-
+t1 = time()
+print(f"loading data finished, took {t1 - t0}s")
 sim_params = SimParams(
 	has_solar                     = True,
 	has_wind                      = True,
@@ -98,7 +100,8 @@ thread_results       = manager.list()
 running_thread_count = 0
 print("size", get_total_size(sim_params))
 current_sim_count = 0
-
+print("generating data")
+t1 = time()
 for wind in range(PARAMS["wind_nb_points"]):
 		for sun in range(PARAMS["sun_nb_points"]):
 			for bio in range(PARAMS["bio_nb_points"]):
@@ -118,7 +121,8 @@ for wind in range(PARAMS["wind_nb_points"]):
 							"flex_to_sim"    : flex_to_sim,
 						})
 						current_sim_count += 1
-
+t2 = time()
+print(f"finished, took {t2 - t1}s (elapsed {t2 - t0}s)")
 def sim_process_function(i, params_to_sim, sim_param, sim_results):
 	print("process", i, "has started")
 	results = []
@@ -135,9 +139,16 @@ def sim_process_function(i, params_to_sim, sim_param, sim_results):
 		sim_param.check_and_convert_params()
 		result = simulate_senario(sim_param)
 		result = {**param,
+			"storage_use"    : (result.battery.get_average() / result.battery.capacity if result.battery.capacity != 0 else 1),
 			"imported_power" : result.imported_power.get_average(),
 			"exported_power" : result.exported_power.get_average(),
-			"covered_needs"  : (result.total_production / result.total_consumption).get_average()
+			"autoconso"      : (result.total_production / result.total_consumption).get_average(),
+			"imported_time"  : (result.imported_power.count_greater_than(0.0) / len(result.imported_power.power)),
+			"exported_time"  : (result.exported_power.count_greater_than(0.0) / len(result.exported_power.power)),
+			"low_conso_peak" : (result.total_consumption.get_percentile(5)),
+			"high_conso_peak": (result.total_consumption.get_percentile(95)),
+			"low_import_peak" : (result.imported_power.get_percentile(5)),
+			"high_import_peak": (result.imported_power.get_percentile(95)),
 		}
 		results.append(result)
 	if (i == 0):
@@ -145,6 +156,8 @@ def sim_process_function(i, params_to_sim, sim_param, sim_results):
 	sim_results.append(results)
 
 processes = []
+print("starting all simulations")
+t1 = time()
 for i in range(PARAMS["thread_count"]):
 	print("trying to start thread ", i)
 	process = Process(target=sim_process_function, args=(i, thread_sims_to_do[i], thread_sim_params[i], thread_results))
@@ -153,13 +166,26 @@ for i in range(PARAMS["thread_count"]):
 
 for i in range(len(processes)):
 	processes[i].join()
-	print("process", i, "finished")
-print("all threads have finished")
+	t2 = time()
+	print("process", i, "finished, took",t2 - t1,"s")
+print(f"all threads have finished, total time : {t2-t0} ({t2-t1}s in simulation)")
 print(thread_results[0][0])
 print(thread_results[0][1])
 with open(out_file_path, "w" ) as out_file:
 	print("wind turbines(W/house)", "solar pannels(W/house)", "bioenergy(W/house)", "battery(Wh/house)", "flexibility (raw ratio)", sep=";", file=out_file, end="")
-	print("","import_avg(W/house)", "export_avg(W/house)", "autosufficiency(%)", sep=";", file=out_file)
+	print("",
+	"storage_use (ratio)",
+	"imported_power (W/house)",#scaling will be done after the results, only for display
+	"exported_power (W/house)",
+	"autoconso (ratio)",
+	"imported_time (ratio)",
+	"exported_time (ratio)",
+	"low_conso_peak (W/house)",
+	"high_conso_peak (W/house)",
+	"low_import_peak (W/house)",
+	"high_import_peak (W/house)",
+	sep=";",
+	file=out_file)
 	for results in thread_results:
 		for result in results:
 			print(result["wind_to_sim"],
@@ -167,9 +193,16 @@ with open(out_file_path, "w" ) as out_file:
 				result["bio_to_sim"],
 				result["battery_to_sim"],
 				result["flex_to_sim"],
-				result["imported_power"],
-				result["exported_power"],
-				result["covered_needs"] * 100,
+				result["storage_use"     ],
+				result["imported_power"  ],
+				result["exported_power"  ],
+				result["autoconso"       ],
+				result["imported_time"   ],
+				result["exported_time"   ],
+				result["low_conso_peak"  ],
+				result["high_conso_peak" ],
+				result["low_import_peak" ],
+				result["high_import_peak"],
 				sep=";",
 				file=out_file)
 
