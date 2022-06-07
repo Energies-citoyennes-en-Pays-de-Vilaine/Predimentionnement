@@ -137,6 +137,8 @@ def sim_process_function(i, params_to_sim, sim_param, sim_results):
 		sim_param.battery_capacity = param["battery_to_sim"]
 		sim_param.flexibility_ratio = param["flex_to_sim"]
 		sim_param.check_and_convert_params()
+		if (i == 0):
+			print(sim_param.has_solar_scaling, param["sun_to_sim"])
 		result = simulate_senario(sim_param)
 		result = {**param,
 			"storage_use"    : (result.battery.get_average() / result.battery.capacity if result.battery.capacity != 0 else 1),

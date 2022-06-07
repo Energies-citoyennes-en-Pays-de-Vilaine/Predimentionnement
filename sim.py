@@ -113,10 +113,10 @@ class SimParams():
 			has_piloted_bioenergy         = self.has_piloted_bioenergy        ,
 			has_battery                   = self.has_battery                  ,
 			has_flexibility               = self.has_flexibility              ,
-			has_solar_scaling             = self.has_piloted_bioenergy_scaling, 
+			has_solar_scaling             = self.has_solar_scaling, 
 			has_wind_scaling              = self.has_bioenergy_scaling        , 
 			has_bioenergy_scaling         = self.has_wind_scaling             , 
-			has_piloted_bioenergy_scaling = self.has_solar_scaling            , 
+			has_piloted_bioenergy_scaling = self.has_piloted_bioenergy_scaling, 
 			has_consumer_scaling          = self.has_consumer_scaling if isinstance(self.has_consumer_scaling, bool) else self.has_consumer_scaling[:],
 			solar_power                   = self.solar_power                  ,
 			wind_power                    = self.wind_power                   ,
@@ -144,6 +144,7 @@ class SimParams():
 		if (not self.has_solar):
 			raise Exception("no solar curve in this config")
 		if (self.has_solar_scaling):
+			print("[scaled sp]", self.solar_power, self.solar_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.solar_power).get_average())
 			return self.solar_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.solar_power)
 		return self.solar_curve.get_slice_over_period(self.begin, self.end)
 
