@@ -15,7 +15,7 @@ PARAMS = {
 	"bio_min"                : 1, #average bioenergy prod in MW (Methanol)
 	"bio_max"                : 20,
 	"bio_nb_points"          : 4,
-	"flex_min"               : 0.01, #flexibility in %
+	"flex_min"               : 0.0, #flexibility in %
 	"flex_max"               : 0.1,
 	"flex_nb_points"         : 4,
 	"battery_min"            : 0, #battery capacity in MWh
@@ -112,7 +112,7 @@ for wind in range(PARAMS["wind_nb_points"]):
 						bio_to_sim     = (PARAMS["bio_min"]     + (PARAMS["bio_max"]     - PARAMS["bio_min"])     * bio     / PARAMS["bio_nb_points"])     * PARAMS["scaling_factor_for_pop"]
 						sun_to_sim     = (PARAMS["sun_min"]     + (PARAMS["sun_max"]     - PARAMS["sun_min"])     * sun     / PARAMS["sun_nb_points"])     * PARAMS["scaling_factor_for_pop"]
 						battery_to_sim = (PARAMS["battery_min"] + (PARAMS["battery_max"] - PARAMS["battery_min"]) * battery / PARAMS["battery_nb_points"]) * PARAMS["scaling_factor_for_pop"]
-						flex_to_sim    = (PARAMS["flex_min"]    + (PARAMS["flex_max"]    - PARAMS["flex_min"])    * flex    / PARAMS["flex_nb_points"])    * PARAMS["scaling_factor_for_pop"]
+						flex_to_sim    = (PARAMS["flex_min"]    + (PARAMS["flex_max"]    - PARAMS["flex_min"])    * flex    / PARAMS["flex_nb_points"]) 
 						thread_sims_to_do[current_sim_count%PARAMS["thread_count"]].append({
 							"wind_to_sim"    : wind_to_sim,
 							"bio_to_sim"     : bio_to_sim, 
