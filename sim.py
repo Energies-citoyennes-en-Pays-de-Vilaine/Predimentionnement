@@ -144,7 +144,6 @@ class SimParams():
 		if (not self.has_solar):
 			raise Exception("no solar curve in this config")
 		if (self.has_solar_scaling):
-			print("[scaled sp]", self.solar_power, self.solar_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.solar_power).get_average())
 			return self.solar_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.solar_power)
 		return self.solar_curve.get_slice_over_period(self.begin, self.end)
 
