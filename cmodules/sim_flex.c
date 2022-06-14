@@ -92,12 +92,13 @@ double* caculate_diff(double* production, double* consumption, size_t count)
 	return diff;
 }
 
-void sim_flex(double* production, double* consumption, double* dates, size_t count, double delta_dates, double flex_ratio)
+void sim_flex(double* production, double* consumption, double* dates, size_t count, double delta_dates, double flex_ratio, double* flex_usage_ratio)
 {
 	double* diff = caculate_diff(production, consumption, count);
 	double last_date = dates[0];
 	double total_power = 0;
 	int j = 0;
+	int current_day_index = 0;
 	for (int i = 0; i < count; i++)
 	{
 		if (dates[i] - last_date >= delta_dates || i == count - 1)
@@ -111,14 +112,19 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 
 			double flex_up = total_power * flex_ratio;
 			double flex_down = flex_up;
+			double total_flex = flex_up + flex_down;
 			int right_index = width - 1;
 			double diff_with_last;
+			double daily_flex_usage = 1.0;
 			while (flex_down > TOLERATED_ERROR)
 			{
 				diff_with_last = flex_down / (width - right_index);
 				if (right_index > 0)
 				{
 					diff_with_last = diff[day_indices[right_index]] - diff[day_indices[right_index - 1]];
+				}
+				else{
+					daily_flex_usage = (flex_up + flex_down) / total_flex;
 				}
 
 				diff_with_last = MIN(diff_with_last, flex_down / (width - right_index));
@@ -140,6 +146,10 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 				{
 					diff_with_last = diff[day_indices[left_index + 1]] - diff[day_indices[left_index]];
 				}
+				else
+				{
+					daily_flex_usage = (flex_up + flex_down) / total_flex;
+				}
 				diff_with_last = MIN(diff_with_last, flex_up / (left_index + 1));
 				for (int i = 0; i < left_index + 1; i++)
 				{
@@ -150,7 +160,7 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 				if (left_index + 1 < width)
 				left_index ++;
 			}
-			
+			flex_usage_ratio[current_day_index] = daily_flex_usage;
 			//going to next period
 			last_date = dates[i];
 			j = i;

@@ -139,16 +139,17 @@ def sim_process_function(i, params_to_sim, sim_param, sim_results):
 		sim_param.check_and_convert_params()
 		result = simulate_senario(sim_param)
 		result = {**param,
-			"storage_use"    : (result.battery.get_average() / result.battery.capacity if result.battery.capacity != 0 else 1),
+			"storage_use"    : (result.battery.get_bigger_than(0.0).get_average() / result.battery.capacity if result.battery.capacity != 0 else 1),
 			"imported_power" : result.imported_power.get_average(),
 			"exported_power" : result.exported_power.get_average(),
-			"autoconso"      : (result.total_production / result.total_consumption).get_average(),
+			"autoconso"      : (result.total_consumption / result.total_production).get_average(),
 			"imported_time"  : (result.imported_power.count_greater_than(0.0) / len(result.imported_power.power)),
 			"exported_time"  : (result.exported_power.count_greater_than(0.0) / len(result.exported_power.power)),
 			"low_conso_peak" : (result.total_consumption.get_percentile(5)),
 			"high_conso_peak": (result.total_consumption.get_percentile(95)),
 			"low_import_peak" : (result.imported_power.get_percentile(5)),
 			"high_import_peak": (result.imported_power.get_percentile(95)),
+			"flexibility_use" : (result.flexibility_usage.get_average())
 		}
 		results.append(result)
 	sim_results.append(results)
@@ -182,6 +183,7 @@ with open(out_file_path, "w" ) as out_file:
 	"high_conso_peak (W/house)",
 	"low_import_peak (W/house)",
 	"high_import_peak (W/house)",
+	"flexibility_use (%)",
 	sep=";",
 	file=out_file)
 	for results in thread_results:
@@ -201,6 +203,7 @@ with open(out_file_path, "w" ) as out_file:
 				result["high_conso_peak" ],
 				result["low_import_peak" ],
 				result["high_import_peak"],
+				result["flexibility_use" ],
 				sep=";",
 				file=out_file)
 

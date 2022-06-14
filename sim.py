@@ -10,6 +10,7 @@ from dataclasses import dataclass
 TOLERATED_ERROR = 1e-8
 from ctypes import *
 libsim = CDLL(os.path.dirname(os.path.realpath(__file__)) + "/cmodules/libsim.so")
+from math import ceil
 
 class SimParams():
 	#when implemented, the batteries will come after the flexibility, or both will be used by python's optimize
@@ -234,6 +235,7 @@ class SimResults():
 	imported_power              : PowerData
 	exported_power              : PowerData
 	battery                     : Battery
+	flexibility_usage           : PowerData
 	def get_slice_over_period(self, begin : datetime, end : datetime) -> SimResults:
 		return SimResults(
 			total_consumption           = self.total_consumption          .get_slice_over_period(begin, end) if (self.total_consumption           != None) else None,
@@ -242,6 +244,7 @@ class SimResults():
 			imported_power              = self.imported_power             .get_slice_over_period(begin, end) if (self.imported_power              != None) else None, 
 			exported_power              = self.exported_power             .get_slice_over_period(begin, end) if (self.exported_power              != None) else None, 
 			battery                     = self.battery                    .get_slice_over_period(begin, end) if (self.battery                     != None) else None, 
+			flexibility_usage           = self.flexibility_usage          .get_slice_over_period(begin, end) if (self.flexibility_usage           != None) else None, 
 			)
 	def get_rolling_average(self, width : int) -> SimResults:
 		return SimResults(
@@ -251,6 +254,7 @@ class SimResults():
 			imported_power              = self.imported_power             .get_rolling_average(width) if (self.imported_power              != None) else None,
 			exported_power              = self.exported_power             .get_rolling_average(width) if (self.exported_power              != None) else None,
 			battery                     = self.battery                    .get_rolling_average(width) if (self.battery                     != None) else None,
+			flexibility_usage           = self.flexibility_usage          .get_rolling_average(width) if (self.flexibility_usage           != None) else None,
 			)
 
 def simulate_flexibility(prod : PowerData, cons : PowerData, flex_ratio : float) -> Tuple[PowerData, PowerData]:
@@ -311,14 +315,19 @@ def simulate_flexibility(prod : PowerData, cons : PowerData, flex_ratio : float)
 def simulate_flexibility_c(prod : PowerData, cons : PowerData, flex_ratio: float, deltatime : float):
 	prod = prod.get_copy()
 	cons = cons.get_copy()
+	prod_timestamps = prod.get_dates_as_timestamps()
+	pod_deltat = (prod_timestamps[1] - prod_timestamps[0])
+	flex_usage = np.array([0.0] * ceil(len(prod.dates) * pod_deltat / deltatime), dtype=np.float64)
 	libsim.sim_flex(
 	prod.power.ctypes.data_as(POINTER(c_double)),
 	cons.power.ctypes.data_as(POINTER(c_double)),
-	prod.get_dates_as_timestamps().ctypes.data_as(POINTER(c_double)),
+	prod_timestamps.ctypes.data_as(POINTER(c_double)),
 	len(prod.power),
 	c_double(deltatime),
-	c_double(flex_ratio))
-	return (prod,cons)
+	c_double(flex_ratio),
+	flex_usage.ctypes.data_as(POINTER(c_double))
+	)
+	return (prod, cons, PowerData([prod.dates[int(i * deltatime / pod_deltat)] for i in range(len(flex_usage))] ,flex_usage))
 	pass
 
 def simulate_senario(params: SimParams) -> SimResults:
@@ -335,7 +344,7 @@ def simulate_senario(params: SimParams) -> SimResults:
 	production_before_flexibility = production.get_copy()
 	diff_before_flexibility = (production - total_consumption)
 	if (params.has_flexibility):
-		(production, total_consumption) = simulate_flexibility_c(production, total_consumption, params.flexibility_ratio[0], float(24*3600))
+		(production, total_consumption, flex_usage) = simulate_flexibility_c(production, total_consumption, params.flexibility_ratio[0], float(24*3600))
 	production_before_batteries = production.get_copy()
 	diff_before_batteries = (production - total_consumption)
 	if params.has_battery:
@@ -350,5 +359,6 @@ def simulate_senario(params: SimParams) -> SimResults:
 			total_production=production,\
 			exported_power=exported_power,\
 			imported_power=imported_power,\
-			battery=battery
+			battery=battery,\
+			flexibility_usage=flex_usage
 		)
