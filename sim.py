@@ -316,8 +316,7 @@ def simulate_flexibility_c(prod : PowerData, cons : PowerData, flex_ratio: float
 	prod = prod.get_copy()
 	cons = cons.get_copy()
 	prod_timestamps = prod.get_dates_as_timestamps()
-	pod_deltat = (prod_timestamps[1] - prod_timestamps[0])
-	flex_usage = np.array([0.0] * ceil(len(prod.dates) * pod_deltat / deltatime), dtype=np.float64)
+	flex_usage = np.array([0.0] * ceil((prod_timestamps[-1] - prod_timestamps[0]) / deltatime), dtype=np.float64)
 	libsim.sim_flex(
 	prod.power.ctypes.data_as(POINTER(c_double)),
 	cons.power.ctypes.data_as(POINTER(c_double)),
@@ -327,7 +326,7 @@ def simulate_flexibility_c(prod : PowerData, cons : PowerData, flex_ratio: float
 	c_double(flex_ratio),
 	flex_usage.ctypes.data_as(POINTER(c_double))
 	)
-	return (prod, cons, PowerData([prod.dates[int(i * deltatime / pod_deltat)] for i in range(len(flex_usage))] ,flex_usage))
+	return (prod, cons, PowerData([prod.dates[int(i * len(flex_usage)/len(prod.dates))] for i in range(len(flex_usage))] ,flex_usage))
 	pass
 
 def simulate_senario(params: SimParams) -> SimResults:

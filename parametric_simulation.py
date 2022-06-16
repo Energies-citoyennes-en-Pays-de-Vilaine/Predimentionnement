@@ -6,23 +6,23 @@ from time import time
 from multiprocessing import Process, Manager
 t0 = time()
 PARAMS = {
-	"wind_min"               : 5, #average wind prod in MW
-	"wind_max"               : 30,
-	"wind_nb_points"         : 5,
-	"sun_min"                : 1, #average solar prod in MW
-	"sun_max"                : 40,
-	"sun_nb_points"          : 3,
-	"bio_min"                : 1, #average bioenergy prod in MW (Methanol)
-	"bio_max"                : 20,
-	"bio_nb_points"          : 4,
-	"flex_min"               : 0.0, #flexibility in %
-	"flex_max"               : 0.1,
-	"flex_nb_points"         : 4,
-	"battery_min"            : 0, #battery capacity in MWh
-	"battery_max"            : 10,
-	"battery_nb_points"      : 4,
-	"scaling_factor_for_pop" : 1e6 / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
-	"thread_count"           : 1,
+    "wind_min"               : 90  / (365 * 24), #average wind prod in MW
+    "wind_max"               : 300 / (365 * 24),
+    "wind_nb_points"         : 40,
+    "sun_min"                : 10  / (365 * 24), #average solar prod in MW
+    "sun_max"                : 300 / (365 * 24),
+    "sun_nb_points"          : 60,
+    "bio_min"                : 6  / (365 * 24), #average bioenergy prod in MW (Methanol)
+    "bio_max"                : 60 / (365 * 24),
+    "bio_nb_points"          : 10,
+    "flex_min"               : 0.0, #flexibility in %
+    "flex_max"               : 0.1,
+    "flex_nb_points"         : 10,
+    "battery_min"            : 0, #battery capacity in MWh
+    "battery_max"            : 100,
+    "battery_nb_points"      : 10,
+    "scaling_factor_for_pop" : 1e6 / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
+    "thread_count"           : 20,
 }
 if (len(argv) < 2):
 	print("you need to specify the result file location")
@@ -149,7 +149,9 @@ def sim_process_function(i, params_to_sim, sim_param, sim_results):
 			"high_conso_peak": (result.total_consumption.get_percentile(95)),
 			"low_import_peak" : (result.imported_power.get_percentile(5)),
 			"high_import_peak": (result.imported_power.get_percentile(95)),
-			"flexibility_use" : (result.flexibility_usage.get_average())
+			"flexibility_use" : (result.flexibility_usage.get_average()),
+			"export_max"      : (result.exported_power.power.max()),
+			"import_max"      : (result.imported_power.power.max())
 		}
 		results.append(result)
 	sim_results.append(results)
@@ -184,6 +186,8 @@ with open(out_file_path, "w" ) as out_file:
 	"low_import_peak (W/house)",
 	"high_import_peak (W/house)",
 	"flexibility_use (%)",
+	"export_max (W/house)",
+	"import_max (W/house)",
 	sep=";",
 	file=out_file)
 	for results in thread_results:
@@ -204,6 +208,8 @@ with open(out_file_path, "w" ) as out_file:
 				result["low_import_peak" ],
 				result["high_import_peak"],
 				result["flexibility_use" ],
+				result["export_max"      ],
+				result["import_max"      ],
 				sep=";",
 				file=out_file)
 

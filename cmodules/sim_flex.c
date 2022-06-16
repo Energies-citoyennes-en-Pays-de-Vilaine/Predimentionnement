@@ -161,6 +161,7 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 				left_index ++;
 			}
 			flex_usage_ratio[current_day_index] = daily_flex_usage;
+			current_day_index ++;
 			//going to next period
 			last_date = dates[i];
 			j = i;
