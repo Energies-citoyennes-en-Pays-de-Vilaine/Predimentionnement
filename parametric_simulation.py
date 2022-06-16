@@ -6,14 +6,14 @@ from time import time
 from multiprocessing import Process, Manager
 t0 = time()
 PARAMS = {
-    "wind_min"               : 90  / (365 * 24), #average wind prod in MW
-    "wind_max"               : 300 / (365 * 24),
+    "wind_min"               : 1000 * 90  / (365 * 24), #average wind prod in MW
+    "wind_max"               : 1000 * 300 / (365 * 24),
     "wind_nb_points"         : 40,
-    "sun_min"                : 10  / (365 * 24), #average solar prod in MW
-    "sun_max"                : 300 / (365 * 24),
+    "sun_min"                : 1000 * 10  / (365 * 24), #average solar prod in MW
+    "sun_max"                : 1000 * 300 / (365 * 24),
     "sun_nb_points"          : 60,
-    "bio_min"                : 6  / (365 * 24), #average bioenergy prod in MW (Methanol)
-    "bio_max"                : 60 / (365 * 24),
+    "bio_min"                : 1000 * 6  / (365 * 24), #average bioenergy prod in MW (Methanol)
+    "bio_max"                : 1000 * 60 / (365 * 24),
     "bio_nb_points"          : 10,
     "flex_min"               : 0.0, #flexibility in %
     "flex_max"               : 0.1,

@@ -342,6 +342,7 @@ def simulate_senario(params: SimParams) -> SimResults:
 		production = params.get_constant_bioenergy_curve() + production
 	production_before_flexibility = production.get_copy()
 	diff_before_flexibility = (production - total_consumption)
+	flex_usage = 1.0
 	if (params.has_flexibility):
 		(production, total_consumption, flex_usage) = simulate_flexibility_c(production, total_consumption, params.flexibility_ratio[0], float(24*3600))
 	production_before_batteries = production.get_copy()
