@@ -8,21 +8,21 @@ t0 = time()
 PARAMS = {
     "wind_min"               : 1000 * 90  / (365 * 24), #average wind prod in MW
     "wind_max"               : 1000 * 300 / (365 * 24),
-    "wind_nb_points"         : 40,
+    "wind_nb_points"         : 10,
     "sun_min"                : 1000 * 10  / (365 * 24), #average solar prod in MW
     "sun_max"                : 1000 * 300 / (365 * 24),
-    "sun_nb_points"          : 60,
+    "sun_nb_points"          : 10,
     "bio_min"                : 1000 * 6  / (365 * 24), #average bioenergy prod in MW (Methanol)
     "bio_max"                : 1000 * 60 / (365 * 24),
-    "bio_nb_points"          : 10,
+    "bio_nb_points"          : 5,
     "flex_min"               : 0.0, #flexibility in %
     "flex_max"               : 0.1,
     "flex_nb_points"         : 10,
     "battery_min"            : 0, #battery capacity in MWh
-    "battery_max"            : 100,
+    "battery_max"            : 5,
     "battery_nb_points"      : 10,
     "scaling_factor_for_pop" : 1e6 / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
-    "thread_count"           : 20,
+    "thread_count"           : 8,
 }
 if (len(argv) < 2):
 	print("you need to specify the result file location")
