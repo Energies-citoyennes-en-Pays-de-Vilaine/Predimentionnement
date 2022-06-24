@@ -26,7 +26,7 @@ def prod_bretagne(inpath, outpath):
 			dateUTC = parsedDate - timedelta(hours = int(date.split("+")[1][:2]))
 			key = type_prod[:2]
 			if (key in toTreat.keys()):
-				dates[key].append(parsedDate)
+				dates[key].append(dateUTC)
 				prods[key].append(energy_prod)
 	for key in toTreat.keys():
 		#assumes the data is just in decreasing date order, reverses the data

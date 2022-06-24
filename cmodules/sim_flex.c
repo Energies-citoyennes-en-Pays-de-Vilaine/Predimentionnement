@@ -116,6 +116,7 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 			int right_index = width - 1;
 			double diff_with_last;
 			double daily_flex_usage = 1.0;
+			int daily_flex_usage_final = 0;
 			while (flex_down > TOLERATED_ERROR)
 			{
 				diff_with_last = flex_down / (width - right_index);
@@ -124,7 +125,11 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 					diff_with_last = diff[day_indices[right_index]] - diff[day_indices[right_index - 1]];
 				}
 				else{
-					daily_flex_usage = (total_flex - flex_up - flex_down) / total_flex;
+					if (daily_flex_usage_final == 0)
+					{
+						daily_flex_usage = (total_flex - flex_up - flex_down) / total_flex;
+						daily_flex_usage_final = 1;
+					}
 				}
 
 				diff_with_last = MIN(diff_with_last, flex_down / (width - right_index));
@@ -148,7 +153,11 @@ void sim_flex(double* production, double* consumption, double* dates, size_t cou
 				}
 				else
 				{
-					daily_flex_usage = (total_flex - flex_up - flex_down) / total_flex;
+					if (daily_flex_usage_final == 0)
+					{
+						daily_flex_usage = (total_flex - flex_up - flex_down) / total_flex;
+						daily_flex_usage_final = 1;
+					}
 				}
 				diff_with_last = MIN(diff_with_last, flex_up / (left_index + 1));
 				for (int i = 0; i < left_index + 1; i++)
