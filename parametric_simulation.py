@@ -108,11 +108,11 @@ for wind in range(PARAMS["wind_nb_points"]):
 				for battery in range(PARAMS["battery_nb_points"]):
 					for flex in range(PARAMS["flex_nb_points"]):
 						#print("simulation", current_sim_count, "out of", total_sim_count)
-						wind_to_sim    = (PARAMS["wind_min"]    + (PARAMS["wind_max"]    - PARAMS["wind_min"])    * wind    / PARAMS["wind_nb_points"])    * PARAMS["scaling_factor_for_pop"]
-						bio_to_sim     = (PARAMS["bio_min"]     + (PARAMS["bio_max"]     - PARAMS["bio_min"])     * bio     / PARAMS["bio_nb_points"])     * PARAMS["scaling_factor_for_pop"]
-						sun_to_sim     = (PARAMS["sun_min"]     + (PARAMS["sun_max"]     - PARAMS["sun_min"])     * sun     / PARAMS["sun_nb_points"])     * PARAMS["scaling_factor_for_pop"]
-						battery_to_sim = (PARAMS["battery_min"] + (PARAMS["battery_max"] - PARAMS["battery_min"]) * battery / PARAMS["battery_nb_points"]) * PARAMS["scaling_factor_for_pop"]
-						flex_to_sim    = (PARAMS["flex_min"]    + (PARAMS["flex_max"]    - PARAMS["flex_min"])    * flex    / PARAMS["flex_nb_points"]) 
+						wind_to_sim    = (PARAMS["wind_min"]    + (PARAMS["wind_max"]    - PARAMS["wind_min"])    * wind    / max(0, PARAMS["wind_nb_points"]     - 1)) * PARAMS["scaling_factor_for_pop"]
+						bio_to_sim     = (PARAMS["bio_min"]     + (PARAMS["bio_max"]     - PARAMS["bio_min"])     * bio     / max(0, PARAMS["bio_nb_points"]      - 1)) * PARAMS["scaling_factor_for_pop"]
+						sun_to_sim     = (PARAMS["sun_min"]     + (PARAMS["sun_max"]     - PARAMS["sun_min"])     * sun     / max(0, PARAMS["sun_nb_points"]      - 1)) * PARAMS["scaling_factor_for_pop"]
+						battery_to_sim = (PARAMS["battery_min"] + (PARAMS["battery_max"] - PARAMS["battery_min"]) * battery / max(0, PARAMS["battery_nb_points"]  - 1)) * PARAMS["scaling_factor_for_pop"]
+						flex_to_sim    = (PARAMS["flex_min"]    + (PARAMS["flex_max"]    - PARAMS["flex_min"])    * flex    / max(0, PARAMS["flex_nb_points"]     - 1))
 						thread_sims_to_do[current_sim_count%PARAMS["thread_count"]].append({
 							"wind_to_sim"    : wind_to_sim,
 							"bio_to_sim"     : bio_to_sim, 
