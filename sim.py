@@ -364,3 +364,41 @@ def simulate_senario(params: SimParams) -> SimResults:
 			battery=battery,\
 			flexibility_usage=flex_usage
 		)
+@dataclass(init=True)
+class AgglomeratedSimResults:
+	storage_use     : float 
+	imported_power  : float 
+	exported_power  : float 
+	imported_time   : float 
+	exported_time   : float 
+	low_conso_peak  : float 
+	high_conso_peak : float 
+	low_import_peak : float 
+	high_import_peak: float 
+	flexibility_use : float 
+	export_max      : float 
+	import_max      : float 
+	coverage        : float
+	coverage_avg    : float
+	autoconso       : float
+	autoprod        : float
+	@classmethod
+	def from_sim_results (cls, result : SimResults) -> AgglomeratedSimResults:
+		return AgglomeratedSimResults(
+			storage_use     = (result.battery.get_bigger_than(0.0).get_average() / result.battery.capacity if result.battery.capacity != 0 else 1),
+			imported_power  = result.imported_power.get_average(),
+			exported_power  = result.exported_power.get_average(),
+			imported_time   = (result.imported_power.count_greater_than(0.0) / len(result.imported_power.power)),
+			exported_time   = (result.exported_power.count_greater_than(0.0) / len(result.exported_power.power)),
+			low_conso_peak  = (result.total_consumption.get_percentile(5)),
+			high_conso_peak = (result.total_consumption.get_percentile(95)),
+			low_import_peak = (result.imported_power.get_percentile(5)),
+			high_import_peak= (result.imported_power.get_percentile(95)),
+			flexibility_use = (result.flexibility_usage.get_average()),
+			export_max      = (result.exported_power.power.max()),
+			import_max      = (result.imported_power.power.max()),
+			coverage        = (result.total_consumption.get_average() / result.total_production.get_average()),
+			coverage_avg    = (result.total_consumption / result.total_production).get_average(),
+			autoconso       = ((result.total_production - result.exported_power).get_average() / result.total_production.get_average()),
+			autoprod        = ((result.total_consumption - result.imported_power).get_average() / result.total_consumption.get_average())
+		)
