@@ -148,6 +148,8 @@ class PowerData():
 	def get_rolling_average(self, count) -> PowerData:
 		current_sum = 0
 		powerToReturn = []
+		for i in range(floor(count/2) - 1):
+			current_sum += self.power[i]
 		for i in range(len(self.power)):
 			powerToReturn.append(current_sum / count)
 			if (i + floor(count/2) < len(self.power)):
