@@ -385,7 +385,7 @@ class AgglomeratedSimResults:
 	@classmethod
 	def from_sim_results (cls, result : SimResults) -> AgglomeratedSimResults:
 		return AgglomeratedSimResults(
-			storage_use     = (result.battery.get_bigger_than(0.0).get_average() / result.battery.capacity if result.battery.capacity != 0 else 1),
+			storage_use     = (result.battery.get_bigger_than(0.0).get_average() / result.battery.capacity if result.battery != None and result.battery.capacity != 0 else 1),
 			imported_power  = result.imported_power.get_average(),
 			exported_power  = result.exported_power.get_average(),
 			imported_time   = (result.imported_power.count_greater_than(0.0) / len(result.imported_power.power)),
@@ -397,8 +397,8 @@ class AgglomeratedSimResults:
 			flexibility_use = (result.flexibility_usage.get_average()),
 			export_max      = (result.exported_power.power.max()),
 			import_max      = (result.imported_power.power.max()),
-			coverage        = (result.total_consumption.get_average() / result.total_production.get_average()),
-			coverage_avg    = (result.total_consumption / result.total_production).get_average(),
+			coverage        = (result.total_production.get_average() / result.total_consumption.get_average()),
+			coverage_avg    = (result.total_production / result.total_consumption).get_average(),
 			autoconso       = ((result.total_production - result.exported_power).get_average() / result.total_production.get_average()),
 			autoprod        = ((result.total_consumption - result.imported_power).get_average() / result.total_consumption.get_average())
 		)
