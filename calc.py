@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import *
 from datetime import datetime, timedelta
-from math import floor
+from math import floor, ceil
 import numpy as np
 class Period:
 	beginning : datetime
@@ -154,8 +154,8 @@ class PowerData():
 			powerToReturn.append(current_sum / count)
 			if (i + floor(count/2) < len(self.power)):
 				current_sum += self.power[i + floor(count/2)]
-			if (i - floor(count/2) > 0):
-				current_sum -= self.power[i - floor(count/2)]
+			if (i - ceil(count/2) > 0):
+				current_sum -= self.power[i - ceil(count/2)]
 		return PowerData(self.dates, np.array(powerToReturn))
 	def get_cumulated_average(self) -> PowerData:
 		data = 0
