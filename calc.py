@@ -188,6 +188,20 @@ class PowerData():
 			summ += self.power[j]
 			j += 1
 		return summ / (j - i)
+	def get_sum(self, beginning : datetime = None, end : datetime = None) -> float:
+		if (beginning == None):
+			beginning = self.dates[0]
+		if (end == None):
+			end = self.dates[-1]
+		i = 0
+		while(i < len(self.dates) and self.dates[i] < beginning):
+			i += 1
+		j = i
+		summ = 0.0
+		while(j < len(self.dates) and self.dates[j] < end):
+			summ += self.power[j]
+			j += 1
+		return summ
 	def get_merged_to(self, p2 : PowerData) -> PowerData:
 		if (len(self.dates) == 0):
 			return p2.get_copy()
