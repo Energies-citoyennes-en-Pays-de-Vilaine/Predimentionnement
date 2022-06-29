@@ -254,7 +254,7 @@ class SimResults():
 			imported_power              = self.imported_power             .get_rolling_average(width) if (self.imported_power              != None) else None,
 			exported_power              = self.exported_power             .get_rolling_average(width) if (self.exported_power              != None) else None,
 			battery                     = self.battery                    .get_rolling_average(width) if (self.battery                     != None) else None,
-			flexibility_usage           = self.flexibility_usage          .get_rolling_average(width) if (self.flexibility_usage           != None) else None,
+			flexibility_usage           = self.flexibility_usage, #flexibility rolling average doesn't have any sense in this context
 			)
 
 def simulate_flexibility(prod : PowerData, cons : PowerData, flex_ratio : float) -> Tuple[PowerData, PowerData]:
