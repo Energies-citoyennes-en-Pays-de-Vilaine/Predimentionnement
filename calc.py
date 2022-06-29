@@ -210,14 +210,16 @@ class PowerData():
 class Battery(PowerData):
 	capacity : float
 	dated_energy : np.array(float)
-	def __init__(self, capacity : float, dates: List[datetime] = None, power: np.array = None):
+	def __init__(self, capacity : float, dates: List[datetime] = None, power: np.array = None,  dated_energy : List[float] = None):
 		if dates is None or power is None:
 			dates = []
 			power = np.array([])
 		super().__init__(dates, power)
 		self.capacity = capacity #capacity is in wh
 		#convention is here power is positive to charge the battery
-		self.dated_energy = []
+		self.dated_energy = dated_energy
+		if dated_energy == None:
+			self.dated_energy = []
 	def from_power_data(self, data : PowerData):
 		self.power = np.copy(data.power)
 		self.dates = data.dates[:]
@@ -231,5 +233,25 @@ class Battery(PowerData):
 			energy = nextEnergy
 			self.dated_energy[i+1] = nextEnergy
 		self.power[-1] = 0.0
-			
-			
+
+	
+
+	def get_slice_over_period(self, beginning: datetime = None, end : datetime = None) -> Battery:
+		if (beginning == None):
+			beginning = self.dates[0]
+		if (end == None):
+			end = self.dates[-1]
+		i = 0
+		while(i < len(self.dates) and self.dates[i] < beginning):
+			i += 1
+		j = i
+		powerToReturn : List[float] = []
+		dateToReturn : List[datetime] = []
+		datedEnergy : List[float] = []
+		while(j < len(self.dates) and self.dates[j] < end):
+			powerToReturn.append(self.power[j])
+			dateToReturn.append(self.dates[j])
+			datedEnergy.append(self.dated_energy[j])
+			j += 1
+		return Battery(self.capacity, dateToReturn, np.array(powerToReturn), datedEnergy)
+	
