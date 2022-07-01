@@ -16,30 +16,34 @@ BATTERY_CAPACITY = 0.0
 
 @dataclass(init=True)
 class ConfigObject():
-	NB_EOLIENNE               : float
-	CA_REDON_POPULATION       : int
-	CA_PONTCHATEAU_POPULATION : int
-	NB_PARTICULIERS           : int
-	SOLAR_TOTAL_PROD          : int
-	PRODUCTION_SCALING_FACTOR : float
-	ADD_SOLAR                 : bool
-	BIOENERGY_TOTAL_PROD      : int
-	ADD_BIOENERGY             : bool
-	PROD_PER_WINDTURBINE      : float
-	HAS_BATTERY               : bool
-	BATTERY_CAPACITY          : float
+	NB_EOLIENNE                    : float
+	CA_REDON_POPULATION            : int
+	CA_REDON_RES_CONSUMPTION       : float
+	CA_PONTCHATEAU_POPULATION      : int
+	CA_PONTCHATEAU_RES_CONSUMPTION : float
+	NB_PARTICULIERS                : int
+	SOLAR_TOTAL_PROD               : int
+	PRODUCTION_SCALING_FACTOR      : float
+	ADD_SOLAR                      : bool
+	BIOENERGY_TOTAL_PROD           : int
+	ADD_BIOENERGY                  : bool
+	PROD_PER_WINDTURBINE           : float
+	HAS_BATTERY                    : bool
+	BATTERY_CAPACITY               : float
 config = ConfigObject(
-	NB_EOLIENNE               = NB_EOLIENNE               ,
-	CA_REDON_POPULATION       = CA_REDON_POPULATION       ,
-	CA_PONTCHATEAU_POPULATION = CA_PONTCHATEAU_POPULATION ,
-	NB_PARTICULIERS           = NB_PARTICULIERS           ,
-	SOLAR_TOTAL_PROD          = SOLAR_TOTAL_PROD          ,
-	PRODUCTION_SCALING_FACTOR = PRODUCTION_SCALING_FACTOR ,
-	ADD_SOLAR                 = ADD_SOLAR                 ,
-	BIOENERGY_TOTAL_PROD      = BIOENERGY_TOTAL_PROD      ,
-	ADD_BIOENERGY             = ADD_BIOENERGY             ,
-	PROD_PER_WINDTURBINE      = PROD_PER_WINDTURBINE      ,
-	HAS_BATTERY               = HAS_BATTERY               ,
-	BATTERY_CAPACITY          = BATTERY_CAPACITY          ,
+	NB_EOLIENNE                    = NB_EOLIENNE               ,
+	CA_REDON_POPULATION            = CA_REDON_POPULATION       ,
+	CA_REDON_RES_CONSUMPTION       = CA_REDON_RES_CONSUMPTION  ,
+	CA_PONTCHATEAU_POPULATION      = CA_PONTCHATEAU_POPULATION ,
+	CA_PONTCHATEAU_RES_CONSUMPTION = CA_PONTCHATEAU_RES_CONSUMPTION,
+	NB_PARTICULIERS                = NB_PARTICULIERS           ,
+	SOLAR_TOTAL_PROD               = SOLAR_TOTAL_PROD          ,
+	PRODUCTION_SCALING_FACTOR      = PRODUCTION_SCALING_FACTOR ,
+	ADD_SOLAR                      = ADD_SOLAR                 ,
+	BIOENERGY_TOTAL_PROD           = BIOENERGY_TOTAL_PROD      ,
+	ADD_BIOENERGY                  = ADD_BIOENERGY             ,
+	PROD_PER_WINDTURBINE           = PROD_PER_WINDTURBINE      ,
+	HAS_BATTERY                    = HAS_BATTERY               ,
+	BATTERY_CAPACITY               = BATTERY_CAPACITY          ,
   
 )
