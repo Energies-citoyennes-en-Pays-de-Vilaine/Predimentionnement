@@ -326,7 +326,7 @@ def simulate_flexibility_c(prod : PowerData, cons : PowerData, flex_ratio: float
 	c_double(flex_ratio),
 	flex_usage.ctypes.data_as(POINTER(c_double))
 	)
-	return (prod, cons, PowerData([prod.dates[int(i * len(flex_usage)/len(prod.dates))] for i in range(len(flex_usage))] ,flex_usage))
+	return (prod, cons, PowerData([prod.dates[int(i * len(prod.dates)/len(flex_usage))] for i in range(len(flex_usage))] ,flex_usage))
 	pass
 
 def simulate_senario(params: SimParams) -> SimResults:
