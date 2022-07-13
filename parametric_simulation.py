@@ -8,19 +8,19 @@ t0 = time()
 PARAMS = {
     "wind_min"               : 1000 * 90  / (365 * 24), #average wind prod in MW
     "wind_max"               : 1000 * 300 / (365 * 24),
-    "wind_nb_points"         : 10,
+    "wind_nb_points"         : 3,
     "sun_min"                : 1000 * 10  / (365 * 24), #average solar prod in MW
     "sun_max"                : 1000 * 300 / (365 * 24),
-    "sun_nb_points"          : 10,
+    "sun_nb_points"          : 3,
     "bio_min"                : 1000 * 6  / (365 * 24), #average bioenergy prod in MW (Methanol)
     "bio_max"                : 1000 * 60 / (365 * 24),
     "bio_nb_points"          : 5,
     "flex_min"               : 0.0, #flexibility in %
     "flex_max"               : 0.1,
-    "flex_nb_points"         : 10,
+    "flex_nb_points"         : 3,
     "battery_min"            : 0, #battery capacity in MWh
     "battery_max"            : 5,
-    "battery_nb_points"      : 10,
+    "battery_nb_points"      : 3,
     "scaling_factor_for_pop" : 1e6 / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
     "thread_count"           : 8,
 }
@@ -32,6 +32,8 @@ dl = dataloader()
 
 print("loading home consumptions data")
 home_consumption = dl.load_one_user("../data/foyer/breton/averageUser0.csv")
+ent_consumption = dl.load_one_user("../data/ENT_MERGED.csv")
+pro_consumption = dl.load_one_user("../data/PRO_MERGED.csv")
 print("loading wind prod data")
 windProd = dl.load_prod("../data/Prod Eol Elfe.csv")
 print("loading solar prod data")
@@ -64,19 +66,19 @@ sim_params = SimParams(
 	has_wind_scaling              = True,
 	has_bioenergy_scaling         = True,
 	has_piloted_bioenergy_scaling = False,
-	has_consumer_scaling          = False,
+	has_consumer_scaling          = [True, True, True],
 	solar_power                   = 0.0,
 	wind_power                    = 0.0,
 	bioenergy_power               = 0.0,
 	battery_capacity              = 0.0,
 	piloted_bioenergy_power       = 0.0,
 	flexibility_ratio             = 0.0,
-	consumer_power                = 0.0,
-	consumer_contrib              = None,
+	consumer_power                = [194884 * PARAMS["scaling_factor_for_pop"] / (365 * 24), 218011 * PARAMS["scaling_factor_for_pop"] / (365 * 24), 47361 * PARAMS["scaling_factor_for_pop"] / (365 * 24)],
+	consumer_contrib              = [1.0, 1.0, 1.0],
 	solar_curve                   = solarProd,
 	wind_curve                    = windProd,
 	bioenergy_curve               = bioenergy_prod,
-	consumer_curves               = home_consumption,
+	consumer_curves               = [home_consumption, ent_consumption, pro_consumption],
 	begin                         = None,
 	end                           = None
 )

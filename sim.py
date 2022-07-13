@@ -164,7 +164,7 @@ class SimParams():
 				#this may be slow, a has_same_dates will later be added to powerdata
 				intersec = curve.get_intersect(toReturn)
 				curve = curve.get_slice(intersec)
-				toReturn = toReturn.get_slice(toReturn)
+				toReturn = toReturn.get_slice(intersec)
 			if (self.has_consumer_scaling[i]):
 				curve = curve.get_scaled(self.consumer_power[i])
 			curve *= self.consumer_contrib[i]
