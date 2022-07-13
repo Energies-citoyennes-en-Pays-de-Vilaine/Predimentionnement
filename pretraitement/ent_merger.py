@@ -11,9 +11,9 @@ for file in FILES_TO_MERGE:
 		for line in inp:
 			splitted_line = line.split(";")
 			date = datetime.strptime(splitted_line[DATE_INDEX][:16], "%Y-%m-%dT%H:%M")
-			date -= timedelta(hours = int(splitted_line[DATE_INDEX].split("+")[1][:2]))
+			#date -= timedelta(hours = int(splitted_line[DATE_INDEX].split("+")[1][:2]))
 			date_hour = datetime.strptime(splitted_line[DATE_INDEX][:13], "%Y-%m-%dT%H")
-			date_hour -= timedelta(hours = int(splitted_line[DATE_INDEX].split("+")[1][:2]))
+			#date_hour -= timedelta(hours = int(splitted_line[DATE_INDEX].split("+")[1][:2]))
 			cons = float(splitted_line[CONS_INDEX])
 			if date_hour not in data_to_merge[file].keys():
 				data_to_merge[file][date_hour] = 0
@@ -26,10 +26,10 @@ def get_merged_dates(dates1, dates2):
 	i = 0
 	j = 0
 	while(i < len(dates1)):
-		while (dates1[j] < dates2[i] and j < len(dates2)):
+		while (dates1[i] > dates2[j] and j < len(dates2)):
 			j += 1
-		if (dates1[j] == dates2[i]):
-			dates_to_return.append(dates1[j])
+		if (dates1[i] == dates2[j]):
+			dates_to_return.append(dates1[i])
 		i += 1
 	return dates_to_return
 

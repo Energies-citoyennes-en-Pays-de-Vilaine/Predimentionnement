@@ -22,6 +22,9 @@ PARAMS = {
     "battery_max"            : 5,
     "battery_nb_points"      : 3,
     "scaling_factor_for_pop" : 1e6 / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
+	"RES_cons"               : (config.CA_PONTCHATEAU_RES_CONSUMPTION + config.CA_REDON_RES_CONSUMPTION) / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
+	"PRO_cons"               : (config.CA_PONTCHATEAU_PRO_CONSUMPTION + config.CA_REDON_PRO_CONSUMPTION) / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
+	"ENT_cons"               : (config.CA_PONTCHATEAU_ENT_CONSUMPTION + config.CA_REDON_ENT_CONSUMPTION) / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
     "thread_count"           : 8,
 }
 if (len(argv) < 2):
@@ -73,7 +76,7 @@ sim_params = SimParams(
 	battery_capacity              = 0.0,
 	piloted_bioenergy_power       = 0.0,
 	flexibility_ratio             = 0.0,
-	consumer_power                = [194884 * PARAMS["scaling_factor_for_pop"] / (365 * 24), 218011 * PARAMS["scaling_factor_for_pop"] / (365 * 24), 47361 * PARAMS["scaling_factor_for_pop"] / (365 * 24)],
+	consumer_power                = [PARAMS["RES_cons"], PARAMS["ENT_cons"] ,PARAMS["PRO_cons"]],
 	consumer_contrib              = [1.0, 1.0, 1.0],
 	solar_curve                   = solarProd,
 	wind_curve                    = windProd,
@@ -141,19 +144,7 @@ def sim_process_function(i, params_to_sim, sim_param, sim_results):
 		sim_param.check_and_convert_params()
 		result = simulate_senario(sim_param)
 		result = {**param,
-			"storage_use"    : (result.battery.get_bigger_than(0.0).get_average() / result.battery.capacity if result.battery.capacity != 0 else 1),
-			"imported_power" : result.imported_power.get_average(),
-			"exported_power" : result.exported_power.get_average(),
-			"autoconso"      : (result.total_consumption / result.total_production).get_average(),
-			"imported_time"  : (result.imported_power.count_greater_than(0.0) / len(result.imported_power.power)),
-			"exported_time"  : (result.exported_power.count_greater_than(0.0) / len(result.exported_power.power)),
-			"low_conso_peak" : (result.total_consumption.get_percentile(5)),
-			"high_conso_peak": (result.total_consumption.get_percentile(95)),
-			"low_import_peak" : (result.imported_power.get_percentile(5)),
-			"high_import_peak": (result.imported_power.get_percentile(95)),
-			"flexibility_use" : (result.flexibility_usage.get_average()),
-			"export_max"      : (result.exported_power.power.max()),
-			"import_max"      : (result.imported_power.power.max())
+			"agglomerated" : AgglomeratedSimResults.from_sim_results(result)
 		}
 		results.append(result)
 	sim_results.append(results)
@@ -175,23 +166,8 @@ print(f"all threads have finished, total time : {t2-t0} ({t2-t1}s in simulation)
 print(thread_results[0][0])
 print(thread_results[0][1])
 with open(out_file_path, "w" ) as out_file:
-	print("wind turbines(W/house)", "solar pannels(W/house)", "bioenergy(W/house)", "battery(Wh/house)", "flexibility (raw ratio)", sep=";", file=out_file, end="")
-	print("",
-	"storage_use (ratio)",
-	"imported_power (W/house)",#scaling will be done after the results, only for display
-	"exported_power (W/house)",
-	"autoconso (ratio)",
-	"imported_time (ratio)",
-	"exported_time (ratio)",
-	"low_conso_peak (W/house)",
-	"high_conso_peak (W/house)",
-	"low_import_peak (W/house)",
-	"high_import_peak (W/house)",
-	"flexibility_use (%)",
-	"export_max (W/house)",
-	"import_max (W/house)",
-	sep=";",
-	file=out_file)
+	print("wind turbines(W/house)", "solar pannels(W/house)", "bioenergy(W/house)", "battery(Wh/house)", "flexibility (raw ratio)", sep=";", file=out_file, end=";")
+	print(thread_results[0][0]["agglomerated"].get_csv_titles(), file=out_file)
 	for results in thread_results:
 		for result in results:
 			print(result["wind_to_sim"],
@@ -199,19 +175,7 @@ with open(out_file_path, "w" ) as out_file:
 				result["bio_to_sim"],
 				result["battery_to_sim"],
 				result["flex_to_sim"],
-				result["storage_use"     ],
-				result["imported_power"  ],
-				result["exported_power"  ],
-				result["autoconso"       ],
-				result["imported_time"   ],
-				result["exported_time"   ],
-				result["low_conso_peak"  ],
-				result["high_conso_peak" ],
-				result["low_import_peak" ],
-				result["high_import_peak"],
-				result["flexibility_use" ],
-				result["export_max"      ],
-				result["import_max"      ],
+				result["agglomerated"].to_csv_string(),
 				sep=";",
 				file=out_file)
 
