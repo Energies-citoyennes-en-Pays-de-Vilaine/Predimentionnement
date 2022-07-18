@@ -174,13 +174,13 @@ class SimParams():
 			if (self.has_consumer_scaling[i] and self.scale_before_slice == True):
 				curve = curve.get_scaled(self.consumer_power[i])
 			curve = curve.get_slice_over_period(self.begin, self.end)
-			if (self.has_consumer_scaling[i] and self.scale_before_slice == False):
-				curve = curve.get_scaled(self.consumer_power[i])
 			if toReturn is not None:
 				#this may be slow, a has_same_dates will later be added to powerdata
 				intersec = curve.get_intersect(toReturn)
 				curve = curve.get_slice(intersec)
 				toReturn = toReturn.get_slice(intersec)
+			if (self.has_consumer_scaling[i] and self.scale_before_slice == False):
+				curve = curve.get_scaled(self.consumer_power[i])
 			curve *= self.consumer_contrib[i]
 			if toReturn is None:
 				toReturn = curve
