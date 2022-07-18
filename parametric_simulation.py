@@ -26,6 +26,9 @@ PARAMS = {
 	"PRO_cons"               : (config.CA_PONTCHATEAU_PRO_CONSUMPTION + config.CA_REDON_PRO_CONSUMPTION) / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
 	"ENT_cons"               : (config.CA_PONTCHATEAU_ENT_CONSUMPTION + config.CA_REDON_ENT_CONSUMPTION) / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
     "thread_count"           : 8,
+	"begin"                  : datetime.strptime("01/01/2021 00:00","%d/%m/%Y %H:%M"),
+	"end"                    : datetime.strptime("01/01/2022 00:00","%d/%m/%Y %H:%M"),
+	"scale_before_slice"     : False
 }
 if (len(argv) < 2):
 	print("you need to specify the result file location")
@@ -82,8 +85,9 @@ sim_params = SimParams(
 	wind_curve                    = windProd,
 	bioenergy_curve               = bioenergy_prod,
 	consumer_curves               = [home_consumption, ent_consumption, pro_consumption],
-	begin                         = None,
-	end                           = None
+	begin                         = PARAMS["begin"],
+	end                           = PARAMS["end"],
+	scale_before_slice            = PARAMS["scale_before_slice"]
 )
 total_sim_count = PARAMS["wind_nb_points"] * PARAMS["sun_nb_points"] * PARAMS["bio_nb_points"] * PARAMS["battery_nb_points"] * PARAMS["flex_nb_points"] 
 size = 0

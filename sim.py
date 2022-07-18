@@ -47,6 +47,7 @@ class SimParams():
 	#date params, defaults to None
 	begin                   : datetime
 	end                     : datetime
+	scale_before_slice      : bool
 	def __init__(self, \
 		has_solar                     : bool = False,\
 		has_wind                      : bool = False,\
@@ -72,7 +73,8 @@ class SimParams():
 		bioenergy_curve               : PowerData = None,\
 		consumer_curves               : Union[List[PowerData], PowerData] = None,\
 		begin                         : datetime = None,\
-		end                           : datetime = None
+		end                           : datetime = None,\
+		scale_before_slice            : bool = False
 	) -> None:
 		self.has_solar             : bool = has_solar
 		self.has_wind              : bool = has_wind
@@ -103,7 +105,7 @@ class SimParams():
 
 		self.begin                   : datetime = begin
 		self.end                     : datetime = end
-
+		self.scale_before_slice      : bool     = scale_before_slice
 		self.check_and_convert_params()
 
 	def get_clone(self) -> SimParams:
@@ -130,7 +132,10 @@ class SimParams():
 			solar_curve                   = self.solar_curve    .get_copy()  ,
 			wind_curve                    = self.wind_curve     .get_copy()  ,
 			bioenergy_curve               = self.bioenergy_curve.get_copy()  ,
-			consumer_curves               = self.consumer_curves if isinstance(self.consumer_curves, PowerData) else [c.get_copy() for c in self.consumer_curves]
+			consumer_curves               = self.consumer_curves if isinstance(self.consumer_curves, PowerData) else [c.get_copy() for c in self.consumer_curves],
+			begin                         = self.begin,
+			end                           = self.end,
+			scale_before_slice            = self.scale_before_slice
 		)
 	def get_copy(self) -> SimParams:
 		return self.get_clone()
@@ -138,21 +143,27 @@ class SimParams():
 		if (not self.has_wind):
 			raise Exception("no wind curve in this config")
 		if (self.has_wind_scaling):
-			return self.wind_curve.get_scaled(self.wind_power).get_slice_over_period(self.begin, self.end)
+			if self.scale_before_slice == True:
+				return self.wind_curve.get_scaled(self.wind_power).get_slice_over_period(self.begin, self.end)
+			return self.wind_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.wind_power)
 		return self.wind_curve.get_slice_over_period(self.begin, self.end)
 
 	def get_solar_curve(self) -> PowerData:
 		if (not self.has_solar):
 			raise Exception("no solar curve in this config")
 		if (self.has_solar_scaling):
-			return self.solar_curve.get_scaled(self.solar_power).get_slice_over_period(self.begin, self.end)
+			if self.scale_before_slice == True:
+				return self.solar_curve.get_scaled(self.solar_power).get_slice_over_period(self.begin, self.end)
+			return self.solar_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.solar_power)
 		return self.solar_curve.get_slice_over_period(self.begin, self.end)
 
 	def get_constant_bioenergy_curve(self) -> PowerData:
 		if (not self.has_bioenergy):
 			raise Exception("no non-piloted bioenergy curve in this config")
 		if (self.has_bioenergy_scaling):
-			return self.bioenergy_curve.get_scaled(self.bioenergy_power).get_slice_over_period(self.begin, self.end)
+			if self.scale_before_slice == True:
+				return self.bioenergy_curve.get_scaled(self.bioenergy_power).get_slice_over_period(self.begin, self.end)
+			return self.bioenergy_curve.get_slice_over_period(self.begin, self.end).get_scaled(self.bioenergy_power)
 		return self.bioenergy_curve.get_slice_over_period(self.begin, self.end)
 	
 	def get_consumers_agglomerated_curves(self) -> PowerData:
@@ -160,9 +171,11 @@ class SimParams():
 		toReturn : PowerData = None
 		for i in range(len(self.consumer_curves)):
 			curve = self.consumer_curves[i]
-			if (self.has_consumer_scaling[i]):
+			if (self.has_consumer_scaling[i] and self.scale_before_slice == True):
 				curve = curve.get_scaled(self.consumer_power[i])
 			curve = curve.get_slice_over_period(self.begin, self.end)
+			if (self.has_consumer_scaling[i] and self.scale_before_slice == False):
+				curve = curve.get_scaled(self.consumer_power[i])
 			if toReturn is not None:
 				#this may be slow, a has_same_dates will later be added to powerdata
 				intersec = curve.get_intersect(toReturn)
@@ -177,8 +190,10 @@ class SimParams():
 	def get_consumers_curve_index(self, index : int = 0) -> PowerData:
 		if index >= len(self.consumer_curves) or index < 0:
 			raise Exception("index out of range")
+		if self.has_consumer_scaling[index] is True and self.scale_before_slice == True:
+			curve = curve.get_scaled(self.consumer_power[index])
 		curve = self.consumer_curves[index].get_slice_over_period(self.begin, self.end)
-		if self.has_consumer_scaling[index] is True:
+		if self.has_consumer_scaling[index] is True and self.scale_before_slice == False:
 			curve = curve.get_scaled(self.consumer_power[index])
 		curve *= self.consumer_contrib[index]
 	def check_and_convert_params(self):
