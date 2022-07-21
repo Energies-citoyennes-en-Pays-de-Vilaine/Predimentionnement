@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-NB_EOLIENNE = 13
-PROD_PER_WINDTURBINE = 0.577 #average prod per wind turbine in MW
+NB_EOLIENNE = 19
+PROD_PER_WINDTURBINE = 0.728 #average prod per wind turbine in MW
 CA_REDON_POPULATION = 34_725
 CA_REDON_RES_CONSUMPTION = 194_884 * 1e6 / (365*24)#average consumption in W
 CA_REDON_PRO_CONSUMPTION = 47_361 * 1e6 / (365*24)#average consumption in W
@@ -10,7 +10,7 @@ CA_PONTCHATEAU_RES_CONSUMPTION = 98_603 * 1e6 / (365*24)
 CA_PONTCHATEAU_PRO_CONSUMPTION = 16_283 * 1e6 / (365*24)
 CA_PONTCHATEAU_ENT_CONSUMPTION = 50_986 * 1e6 / (365*24)
 NB_PARTICULIERS = 200
-SOLAR_TOTAL_PROD = (28000+2169) # production in Redon and Pontchateau over the course of the 2020 year
+SOLAR_TOTAL_PROD = (0.69 * 365 * 24) # production in Redon and Pontchateau over the course of the 2020 year
 PRODUCTION_SCALING_FACTOR = 1e6  / (365*24) / (CA_PONTCHATEAU_POPULATION + CA_REDON_POPULATION)
 ADD_SOLAR = True
 BIOENERGY_TOTAL_PROD = (18160) # production in Redon and Pontchateau over the course of the 2020 year
