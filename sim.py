@@ -418,3 +418,40 @@ class AgglomeratedSimResults:
 			autoconso       = ((result.total_production - result.exported_power).get_average() / result.total_production.get_average()),
 			autoprod        = ((result.total_consumption - result.imported_power).get_average() / result.total_consumption.get_average())
 		)
+	def get_csv_titles(self) -> str:
+			result = ""
+			result += "storage use (ratio)" + ";"
+			result += "imported power (W/house)" + ";"
+			result += "exported power (W/house)" + ";"
+			result += "imported_time (ratio)" + ";"
+			result += "exported_time (ratio)" + ";"
+			result += "low_conso_peak (W/house)" + ";"
+			result += "high_conso_peak (W/house)" + ";"
+			result += "low_import_peak (W/house)" + ";"
+			result += "high_import_peak (W/house)" + ";"
+			result += "flexibility_use (%)" + ";"
+			result += "export_max (W/house)" + ";"
+			result += "import_max (W/house)" + ";"
+			result += "coverage (%)" + ";"
+			result += "coverage_avg (%)" + ";"
+			result += "autoconso (%)" + ";"
+			result += "autoprod (%)"
+			return result
+	def to_csv_string(self) -> str:
+			result = ""
+			result += str(self.storage_use     ) + ";"
+			result += str(self.imported_power  ) + ";"
+			result += str(self.exported_power  ) + ";"
+			result += str(self.imported_time   ) + ";"
+			result += str(self.exported_time   ) + ";"
+			result += str(self.low_conso_peak  ) + ";"
+			result += str(self.high_conso_peak ) + ";"
+			result += str(self.low_import_peak ) + ";"
+			result += str(self.high_import_peak) + ";"
+			result += str(self.flexibility_use ) + ";"
+			result += str(self.export_max      ) + ";"
+			result += str(self.import_max      ) + ";"
+			result += str(self.coverage        ) + ";"
+			result += str(self.coverage_avg    ) + ";"
+			result += str(self.autoconso       ) + ";"
+			result += str(self.autoprod        )
