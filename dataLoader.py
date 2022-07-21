@@ -60,4 +60,18 @@ class dataloader():
 				dates.append(date)
 				power.append(float(splittedLine[1]))
 		return PowerData(dates, np.array(power))
+
+	def load_wind_prod(self, path : str, startDate : Optional[datetime] = None, index : int = 2) -> PowerData:
+		#expecting a csv mm/dd/yyyy hh:mm:ss,"12,34"
+		with open(path) as inp:
+			dates = []
+			power = []
+			for line in inp:
+				splittedLine = line.split(';')
+				date = datetime.strptime(splittedLine[0], "%Y-%m-%d %H")
+				if (startDate != None and date < startDate):
+					continue
+				dates.append(date)
+				power.append(float(splittedLine[index].replace(",", ".")))
+		return PowerData(dates, np.array(power))
 				
