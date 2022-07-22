@@ -455,3 +455,4 @@ class AgglomeratedSimResults:
 			result += str(self.coverage_avg    ) + ";"
 			result += str(self.autoconso       ) + ";"
 			result += str(self.autoprod        )
+			return result

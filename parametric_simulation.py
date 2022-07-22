@@ -8,19 +8,19 @@ t0 = time()
 PARAMS = {
     "wind_min"               : 1000 * 90  / (365 * 24), #average wind prod in MW
     "wind_max"               : 1000 * 300 / (365 * 24),
-    "wind_nb_points"         : 41,
+    "wind_nb_points"         : 2,
     "sun_min"                : 1000 * 10  / (365 * 24), #average solar prod in MW
     "sun_max"                : 1000 * 300 / (365 * 24),
-    "sun_nb_points"          : 61,
+    "sun_nb_points"          : 2,
     "bio_min"                : 1000 * 6  / (365 * 24), #average bioenergy prod in MW (Methanol)
     "bio_max"                : 1000 * 60 / (365 * 24),
-    "bio_nb_points"          : 11,
+    "bio_nb_points"          : 2,
     "flex_min"               : 0.0, #flexibility in %
     "flex_max"               : 0.15,
-    "flex_nb_points"         : 16,
+    "flex_nb_points"         : 2,
     "battery_min"            : 0, #battery capacity in MWh
     "battery_max"            : 100,
-    "battery_nb_points"      : 11,
+    "battery_nb_points"      : 2,
     "scaling_factor_for_pop" : 1e6 / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
 	"RES_cons"               : (config.CA_PONTCHATEAU_RES_CONSUMPTION + config.CA_REDON_RES_CONSUMPTION) / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
 	"PRO_cons"               : (config.CA_PONTCHATEAU_PRO_CONSUMPTION + config.CA_REDON_PRO_CONSUMPTION) / (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION),
